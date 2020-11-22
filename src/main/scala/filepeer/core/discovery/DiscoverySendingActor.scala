@@ -12,10 +12,10 @@ import io.circe.syntax._
 
 import scala.concurrent.duration._
 
-class DiscoverySendingActor  extends Actor with ActorLogging {
+class DiscoverySendingActor(env: filepeer.core.Env)  extends Actor with ActorLogging {
   import context.system
 
-  val broadcastAddress = new InetSocketAddress("255.255.255.255", 8071)
+  val broadcastAddress = new InetSocketAddress("255.255.255.255", env.discovery.address.port)
   IO(Udp) ! Udp.SimpleSender(Seq(Udp.SO.Broadcast(true)))
 
   context.system.scheduler.scheduleAtFixedRate(5 seconds, 5 seconds, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
@@ -28,7 +28,7 @@ class DiscoverySendingActor  extends Actor with ActorLogging {
   private def discover(socket: ActorRef): Receive = {
     case DiscoverySendingActor.Broadcast =>
 
-      val payload = DiscoveryListeningActor.ClientAddress(DiscoverySendingActor.hostSystem, 8075)
+      val payload = DiscoveryListeningActor.ClientAddress(DiscoverySendingActor.hostSystem, env.transfer.address.port)
       val msg = ByteString(payload.asJson.noSpaces)
       log.debug("sending broadcast..")
       socket ! Udp.Send(msg, broadcastAddress)
@@ -36,7 +36,7 @@ class DiscoverySendingActor  extends Actor with ActorLogging {
 }
 
 object DiscoverySendingActor {
-  def props: Props = Props(classOf[DiscoverySendingActor])
+  def props(env: filepeer.core.Env): Props = Props(classOf[DiscoverySendingActor], env)
   val actorName: String = "discovery-sender"
   val hostSystem: String = InetAddress.getLocalHost.getHostName
 

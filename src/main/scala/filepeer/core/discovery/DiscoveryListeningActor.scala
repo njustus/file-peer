@@ -12,10 +12,10 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 
-class DiscoveryListeningActor(interestee: ActorRef) extends Actor with ActorLogging {
+class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv) extends Actor with ActorLogging {
   import context.system
 
-  val listeningSocketAddress = new InetSocketAddress("0.0.0.0", 8071)
+  val listeningSocketAddress = new InetSocketAddress("0.0.0.0", discovery.address.port)
 
   IO(Udp) ! Udp.Bind(self, listeningSocketAddress)
 
@@ -34,7 +34,10 @@ class DiscoveryListeningActor(interestee: ActorRef) extends Actor with ActorLogg
     val payload = msg.utf8String
     log.debug("new msg from {}, payload: {}", addr.getAddress, payload)
     decode[ClientAddress](payload).toTry
-      .filter { addr => addr.host != DiscoverySendingActor.hostSystem } //ignore myself
+      .filter {
+        case addr if !discovery.includeLocalhost => addr.host != DiscoverySendingActor.hostSystem //ignore myself
+        case _ => true
+      }
       .foreach { case ClientAddress(hostName, port) =>
       interestee ! DiscoveryManager.ClientName(hostName, addr.getHostName, port)
     }
@@ -42,7 +45,7 @@ class DiscoveryListeningActor(interestee: ActorRef) extends Actor with ActorLogg
 }
 
 object DiscoveryListeningActor {
-  def props(interestee: ActorRef): Props = Props(classOf[DiscoveryListeningActor], interestee)
+  def props(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv): Props = Props(classOf[DiscoveryListeningActor], interestee, discovery)
   val actorName: String = "discovery-listener"
 
   @JsonCodec
