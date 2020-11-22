@@ -10,7 +10,6 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 class DiscoverySendingActor  extends Actor with ActorLogging {
@@ -30,7 +29,7 @@ class DiscoverySendingActor  extends Actor with ActorLogging {
   private def discover(socket: ActorRef): Receive = {
     case DiscoverySendingActor.Broadcast =>
 
-      val payload = DiscoveryListeningActor.ClientAddress(InetAddress.getLocalHost.getHostName, 8075)
+      val payload = DiscoveryListeningActor.ClientAddress(DiscoverySendingActor.hostSystem, 8075)
       val msg = ByteString(payload.asJson.noSpaces)
       log.debug("sending broadcast..")
       socket ! Udp.Send(msg, broadcastAddress)
@@ -40,6 +39,7 @@ class DiscoverySendingActor  extends Actor with ActorLogging {
 object DiscoverySendingActor {
   def props: Props = Props(classOf[DiscoverySendingActor])
   val actorName: String = "discovery-sender"
+  val hostSystem: String = InetAddress.getLocalHost.getHostName
 
   sealed trait DiscoveryMsg
   case object Broadcast extends DiscoveryMsg
