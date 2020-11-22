@@ -13,11 +13,11 @@ private class DiscoveryManager extends Actor with ActorLogging {
   private val listeningActor = context.system.actorOf(DiscoveryListeningActor.props(self), DiscoveryListeningActor.actorName)
   private val sendingActor = context.system.actorOf(DiscoverySendingActor.props, DiscoverySendingActor.actorName)
 
-  private val clients = mutable.ArrayBuffer.empty[DiscoveryListeningActor.ClientAddress]
+  private val clients = mutable.ArrayBuffer.empty[DiscoveryListeningActor.ClientName]
 
   override def receive: Receive = {
-    case client: DiscoveryListeningActor.ClientAddress =>
-      log.debug("discovered new client: {}", client)
+    case client: DiscoveryListeningActor.ClientName =>
+      log.info("discovered new client: {}", client)
       clients += client
   }
 }

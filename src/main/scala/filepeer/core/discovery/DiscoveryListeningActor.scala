@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Udp}
 import akka.util.ByteString
-import filepeer.core.discovery.DiscoveryListeningActor.ClientAddress
+import filepeer.core.discovery.DiscoveryListeningActor.{ClientAddress, ClientName}
 import io.circe.generic.JsonCodec
 import io.circe._
 import io.circe.generic.auto._
@@ -33,11 +33,10 @@ class DiscoveryListeningActor(interestee: ActorRef) extends Actor with ActorLogg
   private def decodeAndPublishClient(msg: ByteString, addr: InetSocketAddress): Unit = {
     val payload = msg.utf8String
     log.debug("new msg from {}, payload: {}", addr.getAddress, payload)
-    log.debug("host {} addr {}", addr.getHostName, addr.getHostString)
     decode[ClientAddress](payload).toTry
       .filter { addr => addr.host != DiscoverySendingActor.hostSystem } //ignore myself
-      .foreach { case ClientAddress(_, port) =>
-      interestee ! ClientAddress(addr.getHostName, port)
+      .foreach { case ClientAddress(hostName, port) =>
+      interestee ! ClientName(hostName, addr.getHostName, port)
     }
   }
 }
@@ -48,4 +47,6 @@ object DiscoveryListeningActor {
 
   @JsonCodec
   case class ClientAddress(host: String, port: Int)
+
+  case class ClientName(hostName: String, ip: String, port: Int)
 }

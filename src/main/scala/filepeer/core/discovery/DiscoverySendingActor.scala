@@ -22,7 +22,6 @@ class DiscoverySendingActor  extends Actor with ActorLogging {
 
   override def receive: Receive = {
     case Udp.SimpleSenderReady =>
-      log.info("got udp sender: {}", sender())
       context.become(discover(sender()))
   }
 
