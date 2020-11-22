@@ -8,7 +8,8 @@ class DiscoveryService(actorSystem: ActorSystem) {
 
 private class DiscoveryManager extends Actor with ActorLogging {
 
-  private val listener = context.system.actorOf(DiscoveryListeningActor.props, DiscoveryListeningActor.actorName)
+  private val listeningActor = context.system.actorOf(DiscoveryListeningActor.props, DiscoveryListeningActor.actorName)
+  private val sendingActor = context.system.actorOf(DiscoverySendingActor.props, DiscoverySendingActor.actorName)
 
   override def receive: Receive = {
     case x => log.warning("unhandled: {}", x)

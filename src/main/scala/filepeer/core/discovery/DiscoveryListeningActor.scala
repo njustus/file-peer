@@ -4,6 +4,7 @@ import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Udp}
+import io.circe.generic.JsonCodec
 
 class DiscoveryListeningActor extends Actor with ActorLogging {
   import context.system
@@ -20,11 +21,15 @@ class DiscoveryListeningActor extends Actor with ActorLogging {
 
   def up(socket: ActorRef): Receive = {
     case Udp.Received(data, remote) =>
-      log.debug("received: {} bytes from {}", data.length, remote.getAddress)
+      val payload = data.utf8String
+      log.debug("new msg from {}, payload: {}", remote.getAddress, payload)
   }
 }
 
 object DiscoveryListeningActor {
   def props: Props = Props(classOf[DiscoveryListeningActor])
   val actorName: String = "discovery-listener"
+
+  @JsonCodec
+  case class ClientAddress(host: String, port: Int)
 }

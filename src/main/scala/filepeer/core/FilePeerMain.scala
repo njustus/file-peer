@@ -16,7 +16,6 @@ object FilePeerMain {
 
     val discoveryService = new DiscoveryService(system)
 
-
     Await.ready(system.whenTerminated, Duration.Inf)
   }
 }

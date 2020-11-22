@@ -13,6 +13,7 @@ object Settings {
       "-language:higherKinds",
       "-language:postfixOps",
       "-Xfatal-warnings",
+      "-Ymacro-annotations"
     )
   )
 
@@ -26,6 +27,8 @@ object Settings {
 
 object Dependencies {
 
+  val circeVersion = "0.12.3"
+
   val utils = Seq(
     "com.github.pureconfig" %% "pureconfig" % "0.14.0",
     "org.typelevel" %% "cats-core" % "2.2.0",
@@ -35,6 +38,9 @@ object Dependencies {
     "com.softwaremill.macwire" %% "macros" % "2.3.3",
     // "org.rogach" %% "scallop" % "3.3.+",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-generic" % circeVersion,
+    "io.circe" %% "circe-parser" % circeVersion,
     "org.scalatest" %% "scalatest" % "3.2.2" % "test"
   )
 
