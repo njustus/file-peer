@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Udp}
 import akka.util.ByteString
-import filepeer.core.discovery.DiscoveryListeningActor.{ClientAddress, ClientName}
+import filepeer.core.discovery.DiscoveryListeningActor.ClientAddress
 import io.circe.generic.JsonCodec
 import io.circe._
 import io.circe.generic.auto._
@@ -36,7 +36,7 @@ class DiscoveryListeningActor(interestee: ActorRef) extends Actor with ActorLogg
     decode[ClientAddress](payload).toTry
       .filter { addr => addr.host != DiscoverySendingActor.hostSystem } //ignore myself
       .foreach { case ClientAddress(hostName, port) =>
-      interestee ! ClientName(hostName, addr.getHostName, port)
+      interestee ! DiscoveryManager.ClientName(hostName, addr.getHostName, port)
     }
   }
 }
@@ -47,6 +47,4 @@ object DiscoveryListeningActor {
 
   @JsonCodec
   case class ClientAddress(host: String, port: Int)
-
-  case class ClientName(hostName: String, ip: String, port: Int)
 }
