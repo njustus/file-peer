@@ -5,7 +5,7 @@ import filepeer.core.{DiscoveryEnv, Env, discovery}
 
 import scala.collection.mutable
 
-class DiscoveryService(actorSystem: ActorSystem, env: Env) {
+class DiscoveryService()(implicit actorSystem: ActorSystem, env: Env) {
   private val discoveryManager = actorSystem.actorOf(Props(classOf[DiscoveryManager], env), "discovery-manager")
 }
 
