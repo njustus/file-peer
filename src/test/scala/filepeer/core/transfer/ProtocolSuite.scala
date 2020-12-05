@@ -1,0 +1,94 @@
+package filepeer.core.transfer
+
+import filepeer.core.ActorTestSuite
+import akka.stream.scaladsl._
+import akka.util.ByteString
+import com.typesafe.scalalogging.LazyLogging
+
+class ProtocolSuite extends ActorTestSuite with LazyLogging {
+
+  val bsSink = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
+
+  "ProtocolHandler's 'writeTextMessage'" should "write 1 text message from a flow" in {
+    val payload = "this is a test msg"
+    val size = payload.length
+
+    val bsFut = Source.single(payload)
+      .via(ProtocolHandlers.writeTextMessage)
+      .runWith(bsSink)
+
+    bsFut.map { bs =>
+      val str = bs.utf8String
+      logger.info("received:\n{}", str)
+
+      str shouldBe (
+        s"""Content-Length:$size
+|Message-Type:Text
+|--
+|$payload""".stripMargin
+      )
+    }
+  }
+
+  it should "write multiple text messages" in {
+    val payload = "test msg"
+    val size = payload.size
+
+    val expectedMessage = s"""Content-Length:$size
+|Message-Type:Text
+|--
+|$payload""".stripMargin
+
+    val expectedContent = expectedMessage*10
+
+    val bsFut = Source.repeat(payload)
+      .take(10)
+      .via(ProtocolHandlers.writeTextMessage)
+      .runWith(bsSink)
+
+    bsFut.map { bs =>
+      val str = bs.utf8String
+      logger.info("received:\n{}", str)
+
+      str.shouldBe(expectedContent)
+    }
+  }
+
+
+  "ProtocolHandler's 'reader'" should "read a message from a flow" in {
+    val payload = "this is a test msg"
+    val size = payload.length
+
+    val msgFut = Source.single(payload)
+      .via(ProtocolHandlers.writeTextMessage)
+      .via(ProtocolHandlers.reader)
+    .runWith(Sink.head)
+
+    msgFut.map { msg =>
+      val body = msg.body.utf8String
+      logger.info("received headers: {}", msg.header)
+      logger.info("received body:\n{}", body)
+
+      body.shouldBe(payload)
+    }
+  }
+
+  it should "read headers" in {
+    val payload = "this is a test msg"
+    val size = payload.length
+
+    val msgFut = Source.single(payload)
+      .via(ProtocolHandlers.writeTextMessage)
+      .via(ProtocolHandlers.reader)
+      .runWith(Sink.head)
+
+    val expectedHeaders = Map(
+      DefaultHeaders.CONTENT_LENGTH -> size.toString,
+      DefaultHeaders.MESSAGE_TYPE -> DefaultHeaders.TEXT_MESSAGE_TYPE
+    )
+
+    msgFut.map { msg =>
+      msg.header.shouldBe(expectedHeaders)
+    }
+  }
+}
