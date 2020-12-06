@@ -25,6 +25,8 @@ object ProtocolHandlers extends LazyLogging {
     def payloadSize: Option[Int] = toMap.get(DefaultHeaders.CONTENT_LENGTH).map(v => v.toInt)
 
     def ++(bs: ByteString): Header = this.copy(read++bs)
+
+    override def toString(): String = s"Header(read: [${read.size}] bytes)"
   }
 
   private case class Body(header:Header, read: ByteString) extends ReadState {
@@ -35,9 +37,13 @@ object ProtocolHandlers extends LazyLogging {
     def toMessage: ProtocolMessage = ProtocolMessage(header.toMap, read)
 
     def ++(bs:ByteString): Body = this.copy(read=read++bs)
+
+    override def toString(): String = s"Body(header: $header, read: [${read.size}] bytes)"
   }
 
-  case class ProtocolMessage(header: Map[String, String], body: ByteString)
+  case class ProtocolMessage(header: Map[String, String], body: ByteString) {
+    override def toString(): String = s"ProtocolMessage(header: $header, body: [${body.size}] bytes)"
+  }
 
 
   private val DELIMITER = ByteString("\n--\n")
@@ -56,7 +62,7 @@ object ProtocolHandlers extends LazyLogging {
             val bodyWithoutDelimiter = body.drop(DELIMITER.size)
             val bodyState = Body(headerState, bodyWithoutDelimiter)
 
-            logger.info(s"header read with delimiter: $headerState")
+            logger.debug(s"header read with delimiter: $headerState")
             if(bodyState.hasAllBytes) {
               state = Header(ByteString.empty)
               bodyState.toMessage::Nil
@@ -66,7 +72,7 @@ object ProtocolHandlers extends LazyLogging {
               Nil
             }
           } else {
-            logger.info(s"header read: $h bs size: ${currentBs.length}")
+            logger.debug(s"header read: $h bs size: ${currentBs.length}")
             state = h ++ currentBs
             Nil
           }
@@ -74,7 +80,7 @@ object ProtocolHandlers extends LazyLogging {
           val (needed, remaining) = currentBs.splitAt(b.remainingToRead)
           val bodyState = b ++ needed
 
-          logger.info(s"body read: $bodyState remaining bytes: ${remaining.length}")
+          logger.debug(s"body read: $bodyState remaining bytes: ${remaining.length}")
 
           if(bodyState.hasAllBytes) {
             state = Header(ByteString.empty)

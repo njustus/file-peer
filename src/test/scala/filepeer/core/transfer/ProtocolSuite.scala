@@ -4,6 +4,7 @@ import filepeer.core.ActorTestSuite
 import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
+import scala.concurrent.Await
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
@@ -54,7 +55,6 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     }
   }
 
-
   "ProtocolHandler's 'reader'" should "read a message from a flow" in {
     val payload = "this is a test msg"
     val size = payload.length
@@ -90,5 +90,23 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     msgFut.map { msg =>
       msg.header.shouldBe(expectedHeaders)
     }
+  }
+
+  it should "read multiple messages" in {
+    val payload = "test msg"
+    val size = payload.size
+
+    val msgsFut = Source.repeat(payload)
+      .take(10)
+      .via(ProtocolHandlers.writeTextMessage)
+      .via(ProtocolHandlers.reader)
+      .runWith(Sink.seq)
+
+    val msgs = Await.result(msgsFut, testTimeout)
+    msgs should have size 10
+
+    forAll(msgs) { x =>
+        x.body.utf8String shouldBe (payload)
+      }
   }
 }
