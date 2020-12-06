@@ -102,6 +102,14 @@ object ProtocolHandlers extends LazyLogging {
     List(headers, DELIMITER, ByteString(str))
   }
 
+
+  def writeBinaryMessage:Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].mapConcat { bsElement =>
+    val size = bsElement.size
+    val headers = DefaultHeaders.headers(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage)
+
+    logger.debug(s"serializing BinaryMessage with [$size] bytes")
+    List(headers, DELIMITER, bsElement)
+  }
 }
 
 

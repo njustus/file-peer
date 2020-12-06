@@ -41,7 +41,8 @@ object Dependencies {
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
-    "org.scalatest" %% "scalatest" % "3.2.2" % "test"
+    "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+    "org.apache.commons" % "commons-lang3" % "3.11" % Test
   )
 
   val akkaVersion = "2.6.10"

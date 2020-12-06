@@ -5,6 +5,9 @@ import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.Await
+import org.apache.commons.lang3.SerializationUtils
+
+case class DummyUser(name: String, age: Int, tags: List[String])
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
@@ -55,6 +58,19 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     }
   }
 
+  "ProtocolHandler's 'writeBinaryMessage'" should "write a binary message" in {
+    val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
+    val bytes = SerializationUtils.serialize(user)
+
+    val bsFut = Source.single(ByteString(bytes))
+      .via(ProtocolHandlers.writeBinaryMessage)
+      .runWith(bsSink)
+
+    val bs = Await.result(bsFut, testTimeout)
+    bs.size shouldBe > (bytes.length)
+    bs.indexOfSlice(bytes) shouldBe > (-1)
+  }
+
   "ProtocolHandler's 'reader'" should "read a message from a flow" in {
     val payload = "this is a test msg"
     val size = payload.length
@@ -103,10 +119,32 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       .runWith(Sink.seq)
 
     val msgs = Await.result(msgsFut, testTimeout)
-    msgs should have size 10
+    msgs should have size (10)
 
     forAll(msgs) { x =>
         x.body.utf8String shouldBe (payload)
       }
+  }
+
+  it should "serialize and deserialize binary data" in {
+    val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
+    val bytes = SerializationUtils.serialize(user)
+
+    val msgsFut= Source.repeat(user)
+      .take(10)
+      .map(SerializationUtils.serialize)
+      .map(ByteString.apply)
+      .via(ProtocolHandlers.writeBinaryMessage)
+      .via(ProtocolHandlers.reader)
+      .runWith(Sink.seq)
+
+    val msgs = Await.result(msgsFut, testTimeout)
+    msgs should have size (10)
+
+    forAll(msgs) { msg =>
+      val obj = SerializationUtils.deserialize[Any](msg.body.toArray)
+      obj shouldBe a [DummyUser]
+      obj.asInstanceOf[DummyUser] shouldBe (user)
+    }
   }
 }
