@@ -5,9 +5,7 @@ import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.Await
-import org.apache.commons.lang3.SerializationUtils
 
-case class DummyUser(name: String, age: Int, tags: List[String])
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
@@ -60,7 +58,7 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
   "ProtocolHandler's 'writeBinaryMessage'" should "write a binary message" in {
     val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
-    val bytes = SerializationUtils.serialize(user)
+    val bytes = DummyUser.serialize(user)
 
     val bsFut = Source.single(ByteString(bytes))
       .via(ProtocolHandlers.writeBinaryMessage)
@@ -128,11 +126,11 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
   it should "serialize and deserialize binary data" in {
     val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
-    val bytes = SerializationUtils.serialize(user)
+    val bytes = DummyUser.serialize(user)
 
     val msgsFut= Source.repeat(user)
       .take(10)
-      .map(SerializationUtils.serialize)
+      .map(DummyUser.serialize)
       .map(ByteString.apply)
       .via(ProtocolHandlers.writeBinaryMessage)
       .via(ProtocolHandlers.reader)
@@ -142,9 +140,8 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     msgs should have size (10)
 
     forAll(msgs) { msg =>
-      val obj = SerializationUtils.deserialize[Any](msg.body.toArray)
-      obj shouldBe a [DummyUser]
-      obj.asInstanceOf[DummyUser] shouldBe (user)
+      val obj = DummyUser.deserialize(msg.body.toArray)
+      obj shouldBe (user)
     }
   }
 }

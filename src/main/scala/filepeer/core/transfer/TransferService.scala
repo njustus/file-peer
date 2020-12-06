@@ -30,6 +30,7 @@ class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, en
     connection.handleWith(flow)
   }
 
+
   val readJson: Flow[ByteString, TransferMsg, NotUsed] = JsonFraming.objectScanner(Int.MaxValue)
       .map { bs => decode[TransferPreview](bs.utf8String).toTry }
       .flatMapConcat {
@@ -43,13 +44,13 @@ class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, en
 
   def fileSource(path: Path) = FileIO.fromPath(path)
     .fold(ByteString.empty) { (acc, bs) => acc ++ bs }
-    .map { bs => FileTransfer(path.getFileName.toString, bs.encodeBase64.toArray) }
+    .map { bs => FileTransfer(path.getFileName.toString, bs.toArray) }
 
   def fileSink = {
     Flow[FileTransfer].map { case FileTransfer(fileName, content) =>
         val path = this.targetPath(fileName)
         logger.info(s"saving $fileName at $path")
-        val bs = ByteString(content).decodeBase64
+        val bs = ByteString(content)
         (path, bs)
     }
       .mapAsyncUnordered(2) { case (path, bs) => Source.single(bs).runWith(FileIO.toPath(path)) }
