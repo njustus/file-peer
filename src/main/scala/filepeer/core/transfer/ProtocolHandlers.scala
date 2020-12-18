@@ -43,6 +43,10 @@ object ProtocolHandlers extends LazyLogging {
 
   case class ProtocolMessage(header: Map[String, String], body: ByteString) {
     override def toString(): String = s"ProtocolMessage(header: $header, body: [${body.size}] bytes)"
+
+    def messageType: Option[String] = header.get(DefaultHeaders.MESSAGE_TYPE)
+    def isTextMessage: Boolean = messageType.map(v => v==DefaultHeaders.TEXT_MESSAGE_TYPE).getOrElse(false)
+    def isBinaryMessage: Boolean = messageType.map(v => v==DefaultHeaders.BINARY_MESSAGE_TYPE).getOrElse(false)
   }
 
 
@@ -103,9 +107,10 @@ object ProtocolHandlers extends LazyLogging {
   }
 
 
-  def writeBinaryMessage:Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].mapConcat { bsElement =>
+  def writeBinaryMessage(metaData:Seq[(String, String)] = Seq.empty):Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].mapConcat { bsElement =>
     val size = bsElement.size
-    val headers = DefaultHeaders.headers(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage)
+    val metaDataHeaders = Seq(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage) ++ (metaData.map((DefaultHeaders.makeHeader _).tupled))
+    val headers = DefaultHeaders.headers(metaDataHeaders:_*)
 
     logger.debug(s"serializing BinaryMessage with [$size] bytes")
     List(headers, DELIMITER, bsElement)

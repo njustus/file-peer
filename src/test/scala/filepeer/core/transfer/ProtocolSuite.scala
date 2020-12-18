@@ -5,7 +5,8 @@ import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.Await
-
+import io.circe._
+import io.circe.syntax._
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
@@ -61,12 +62,36 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     val bytes = DummyUser.serialize(user)
 
     val bsFut = Source.single(ByteString(bytes))
-      .via(ProtocolHandlers.writeBinaryMessage)
+      .via(ProtocolHandlers.writeBinaryMessage())
       .runWith(bsSink)
 
     val bs = Await.result(bsFut, testTimeout)
     bs.size shouldBe > (bytes.length)
     bs.indexOfSlice(bytes) shouldBe > (-1)
+  }
+
+  it should "write a binary message with metaData" in {
+    val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
+    val bytes = DummyUser.serialize(user)
+    val json = user.asJson.noSpaces
+
+    val headers = Seq(
+      "File-Name" -> "dummy",
+      "origin" -> "x-nico"
+    )
+
+    val expectedHeader = """File-Name:dummy
+|origin:x-nico""".stripMargin
+
+    val bsFut = Source.single(ByteString(json))
+      .via(ProtocolHandlers.writeBinaryMessage(headers))
+      .runWith(bsSink)
+
+    bsFut.map { bs =>
+      val str = bs.utf8String
+
+      str should (include(expectedHeader) and include(json))
+    }
   }
 
   "ProtocolHandler's 'reader'" should "read a message from a flow" in {
@@ -132,7 +157,7 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       .take(10)
       .map(DummyUser.serialize)
       .map(ByteString.apply)
-      .via(ProtocolHandlers.writeBinaryMessage)
+      .via(ProtocolHandlers.writeBinaryMessage())
       .via(ProtocolHandlers.reader)
       .runWith(Sink.seq)
 
