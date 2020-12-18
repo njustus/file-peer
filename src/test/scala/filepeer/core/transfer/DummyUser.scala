@@ -1,7 +1,10 @@
 package filepeer.core.transfer
 
 import org.apache.commons.lang3.SerializationUtils
+import io.circe.generic.JsonCodec
 
+@JsonCodec
+@SerialVersionUID(38L)
 case class DummyUser(name: String, age: Int, tags: List[String])
 
 object DummyUser {
