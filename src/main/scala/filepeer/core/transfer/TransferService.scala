@@ -21,7 +21,7 @@ import io.circe.syntax._
 import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
-class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
+class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
   val transferEnv = env.transfer
   Tcp().bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
     val sink = ProtocolHandlers.reader
@@ -30,18 +30,6 @@ class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, en
 
     connection.handleWith(Flow.fromSinkAndSource(sink, Source.empty[ByteString]))
   }
-
-
-  val readJson: Flow[ByteString, TransferMsg, NotUsed] = JsonFraming.objectScanner(Int.MaxValue)
-      .map { bs => decode[TransferPreview](bs.utf8String).toTry }
-      .flatMapConcat {
-        case Success(obj) => Source.single(obj)
-        case Failure(ex) =>
-          logger.error("couldn't deserialize msg while reading from connection!", ex)
-          Source.empty
-      }
-
-  def writeJson[T: Encoder]: Flow[T, ByteString, NotUsed] = Flow[T].map { x => ByteString(x.asJson.noSpaces) }
 
   def fileSource(path: Path) = FileIO.fromPath(path)
     .fold(ByteString.empty) { (acc, bs) => acc ++ bs }
