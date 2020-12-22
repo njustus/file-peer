@@ -9,8 +9,7 @@ import io.circe._
 import io.circe.syntax._
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
-
-  val bsSink = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
+  import ProtocolSuite._
 
   "ProtocolHandler's 'writeTextMessage'" should "write 1 text message from a flow" in {
     val payload = "this is a test msg"
@@ -169,4 +168,8 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       obj shouldBe (user)
     }
   }
+}
+
+object ProtocolSuite {
+    val bsSink = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
 }

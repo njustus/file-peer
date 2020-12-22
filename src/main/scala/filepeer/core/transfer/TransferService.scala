@@ -21,47 +21,17 @@ import io.circe.syntax._
 import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
-class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
+class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
   val transferEnv = env.transfer
   Tcp().bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
-    val sink = ProtocolHandlers.reader
+    val sink = Flow[ByteString].log("incoming")
+      .via(
+      ProtocolHandlers.reader)
     .via(messageHandler)
     .to(Sink.ignore)
 
+    logger.debug("new connection from: {}", connection.remoteAddress)
     connection.handleWith(Flow.fromSinkAndSource(sink, Source.empty[ByteString]))
-  }
-
-  def fileSource(path: Path) = FileIO.fromPath(path)
-    .fold(ByteString.empty) { (acc, bs) => acc ++ bs }
-    .map { bs => FileTransfer(path.getFileName.toString, bs.toArray) }
-
-  def serializedFileSource(path: Path) = fileSource(path).via(serializeFileTransfer)
-
-  def serializeFileTransfer = Flow[FileTransfer].flatMapConcat { case FileTransfer(fileName, bytes) =>
-    val fileHeader = TransferService.FILENAME_HEADER -> fileName
-    Source.single(ByteString(bytes))
-      .via(ProtocolHandlers.writeBinaryMessage(Seq(fileHeader)))
-  }
-
-  def fileSink = {
-    Flow[FileTransfer].map { case FileTransfer(fileName, content) =>
-        val path = this.targetPath(fileName)
-        logger.info(s"saving $fileName at $path")
-        val bs = ByteString(content)
-        (path, bs)
-    }
-      .mapAsyncUnordered(2) { case (path, bs) => Source.single(bs).runWith(FileIO.toPath(path)) }
-      .to(Sink.ignore)
-  }
-
-  private def targetPath(fileName: String): Path = {
-    val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    val targetFile = transferEnv.targetDir.resolve(fileName)
-    if(!Files.exists(targetFile)) {
-      targetFile
-    } else {
-      transferEnv.targetDir.resolve(timestamp+"-"+fileName)
-    }
   }
 
   def messageHandler = Flow[ProtocolMessage].flatMapConcat {
@@ -76,16 +46,15 @@ class TransferService()(implicit actorSystem: ActorSystem, mat: Materializer, en
       Source.empty
   }
 
-  def textMessageHandler(textMsg:ProtocolMessage) = {
+  private def textMessageHandler(textMsg:ProtocolMessage) = {
     Source.single(textMsg.body).via(readJson).log("deserialized-json")
   }
 
-  def binaryMessageHandler(binaryMsg:ProtocolMessage) = {
+  private def binaryMessageHandler(binaryMsg:ProtocolMessage) = {
     binaryMsg.header.get(TransferService.FILENAME_HEADER) match {
       case Some(fileName) =>
         logger.debug(s"got a FileTransfer for fileName:$fileName")
-        Source.single(FileTransfer(fileName, binaryMsg.body.toArray))
-          .alsoTo(fileSink)
+        Source.single(FileTransfer(fileName, binaryMsg.body.toArray)).via(fileReceiver.fileWriter)
       case None =>
         logger.warn(s"binary message without a header:${TransferService.FILENAME_HEADER}. DROPPING IT!")
         Source.empty

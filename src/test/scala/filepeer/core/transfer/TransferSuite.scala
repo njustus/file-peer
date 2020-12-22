@@ -17,43 +17,58 @@ class TransferSuite extends ActorTestSuite with Eventually with LazyLogging {
   val tempDir = Files.createTempDirectory("filepeer")
   val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
   implicit val env2:Env = env.copy(transfer=env.transfer.copy(targetDir=tempDir))
-  lazy val transferSvc = new TransferService()
+  val localhost = env2.transfer.address
+
+  lazy val receiver = new FileReceiver()
+  val transfer = new TransferService(receiver)
+  val sender = new FileSender()
 
   override def afterAll(): Unit = {
     better.files.File(tempDir).delete(true)
   }
 
-  "TransferService" should "read a file into memory" in {
+    "FileSender" should "read a file into memory" in {
     sourceFile.path.toFile should exist
 
-    val contentFut = transferSvc.fileSource(sourceFile.path).runWith(Sink.head)
-    val TransferService.FileTransfer(name, content) = Await.result(contentFut, testTimeout)
+    val bsFut = FileSender.sourceFromPath(sourceFile.path).runWith(ProtocolSuite.bsSink)
+    val bs = Await.result(bsFut, testTimeout)
 
-    name shouldBe ("dummy-user")
-    val user = DummyUser.deserialize(content)
-    user shouldBe (DummyUser.personInResourceFile)
+    val expectedBytes = DummyUser.serialize(DummyUser.personInResourceFile)
+    val (start, end) = bs.splitAt(bs.length-expectedBytes.length)
+
+    end shouldBe (expectedBytes)
+    start.utf8String shouldBe (s"""Content-Length:${expectedBytes.length}
+         |Message-Type:Binary
+         |File-Name:${sourceFile.name}
+         |--\n""".stripMargin)
   }
 
-  it should "write a file with filename header" in {
+  it should "send a file into a stream" in {
     sourceFile.path.toFile should exist
 
-    val msgFut = transferSvc.serializedFileSource(sourceFile.path).via(ProtocolHandlers.reader).runWith(Sink.head)
+    val msgFut = FileSender.sourceFromPath(sourceFile.path)
+      .via(ProtocolHandlers.reader)
+      .runWith(Sink.head)
+    val msg = Await.result(msgFut, testTimeout)
 
-    msgFut.map { msg =>
-      msg.header(TransferService.FILENAME_HEADER) shouldBe ("dummy-user")
-    }
+    msg.header(TransferService.FILENAME_HEADER) shouldBe (sourceFile.name)
+    msg.header(DefaultHeaders.CONTENT_LENGTH).toInt shouldBe (sourceFile.size)
+    msg.body.length shouldBe (sourceFile.size)
   }
 
-  it should "write bytes into a file" in {
-    val bytes = DummyUser.serialize(DummyUser.personInResourceFile)
-    val msg = TransferService.FileTransfer(s"dummy-generated-user", bytes)
+  it should "send a file over wire" in {
+    sourceFile.path.toFile should exist
 
-    Source.single(msg).runWith(transferSvc.fileSink)
+    val expectedFile = tempDir.resolve(sourceFile.name).toFile
+    val fut = sender.sendFile(localhost, Seq(sourceFile.path))
+     sender.sendMsg(localhost, "a test msg")
+    Await.ready(fut, testTimeout)
 
-    Thread.sleep(5000)
-    val path = tempDir.resolve("dummy-generated-user")
-    path.toFile should exist
-    val userInFile = DummyUser.deserialize(better.files.File(path).byteArray)
-    userInFile shouldBe (DummyUser.personInResourceFile)
+    Thread.sleep(10_0000)
+
+    expectedFile should exist
+    val bytes = better.files.File(expectedFile.toPath).byteArray
+    val fileUser = DummyUser.deserialize(bytes)
+    fileUser shouldBe (DummyUser.personInResourceFile)
   }
 }

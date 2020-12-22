@@ -115,6 +115,13 @@ object ProtocolHandlers extends LazyLogging {
     logger.debug(s"serializing BinaryMessage with [$size] bytes")
     List(headers, DELIMITER, bsElement)
   }
+
+  def binaryMessageFromSource[Mat](content:Source[ByteString, Mat], size:Long, metaData:Seq[(String, String)] = Seq.empty): Source[ByteString, Mat] = {
+    val metaDataHeaders = Seq(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage) ++ (metaData.map((DefaultHeaders.makeHeader _).tupled))
+    val headers = DefaultHeaders.headers(metaDataHeaders:_*)
+    logger.debug(s"serializing with headers: ${headers.utf8String}")
+    Source(Seq(headers, DELIMITER)).concatMat(content)(Keep.right).log("bs-source")
+  }
 }
 
 
@@ -129,7 +136,7 @@ object DefaultHeaders {
 
   def textMessage: String = makeHeader(MESSAGE_TYPE, TEXT_MESSAGE_TYPE)
   def binaryMessage: String = makeHeader(MESSAGE_TYPE, BINARY_MESSAGE_TYPE)
-  def contentLength(size:Int): String = makeHeader(CONTENT_LENGTH, size.toString)
+  def contentLength(size:Long): String = makeHeader(CONTENT_LENGTH, size.toString)
 
   def headers(headers: String*): ByteString = ByteString(headers.mkString("\n"))
 }
