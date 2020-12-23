@@ -10,6 +10,7 @@ lazy val root = (project in file("."))
   .settings(
     version := "0.0.1",
     name := "file-peer",
+    initialCommands in console := Settings.consoleInit,
     mainClass in Compile := Some("filepeer.core.FilePeerMain"),
     libraryDependencies ++= Dependencies.deps
   )

@@ -22,7 +22,14 @@ object Settings {
     ("git rev-parse HEAD" !!).take(8).trim
   }
 
-  def consoleInit:String = ""
+  def consoleInit:String = """
+import filepeer.core._
+import filepeer.core.discovery._
+import filepeer.core.transfer._
+import better.files._
+import akka.stream._
+import akka.stream.scaladsl._
+"""
 }
 
 object Dependencies {
