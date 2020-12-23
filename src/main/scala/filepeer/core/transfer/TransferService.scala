@@ -28,10 +28,12 @@ class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSys
     val sink = Flow[ByteString].log("incoming-tcp")
       .via(ProtocolHandlers.reader)
     .via(messageHandler)
-    .to(Sink.ignore)
+      .to(Sink.ignore)
+
+    val initialMsgSrc = Source.single[ByteString](ByteString("initial message"))
 
     logger.debug("new connection from: {}", connection.remoteAddress)
-    connection.handleWith(Flow.fromSinkAndSource(sink, Source.single[ByteString](ByteString("initial message"))))
+    connection.handleWith(Flow.fromSinkAndSource(sink, initialMsgSrc))
   }
 
   def messageHandler: Flow[ProtocolMessage, Object, NotUsed] = Flow[ProtocolMessage].flatMapConcat {
@@ -53,7 +55,7 @@ class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSys
   private def binaryMessageHandler(binaryMsg:ProtocolMessage) = {
     binaryMsg.header.get(TransferService.FILENAME_HEADER) match {
       case Some(fileName) =>
-        logger.debug(s"got a FileTransfer for fileName:$fileName")
+        logger.info(s"got a FileTransfer for fileName:$fileName")
         Source.single(FileTransfer(fileName, binaryMsg.body.toArray)).via(fileReceiver.fileWriter)
       case None =>
         logger.warn(s"binary message without a header:${TransferService.FILENAME_HEADER}. DROPPING IT!")

@@ -21,8 +21,9 @@ class FileSender()(implicit actorSystem: ActorSystem, mat: Materializer, env: En
     val sources = files.map(FileSender.sourceFromPath)
       .reduceLeft[Source[ByteString, Future[IOResult]]] { case (src, current) => src.concatMat(current)(Keep.right) }
 
+    logger.info(s"sending files: {} to $address", files.map(_.getFileName))
+
     val src = FileSender.sourceFromPath(files.head)
-    logger.debug(s"sending files: {} to $address", files.map(_.getFileName))
     Tcp().outgoingConnection(address.host, address.port)
       .runWith(sources, Sink.ignore)
       ._1
