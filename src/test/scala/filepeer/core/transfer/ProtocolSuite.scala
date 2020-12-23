@@ -10,6 +10,7 @@ import io.circe._
 import io.circe.syntax._
 
 class ProtocolSuite extends ActorTestSuite with LazyLogging {
+
   import ProtocolSuite._
 
   "ProtocolHandler's 'writeTextMessage'" should "write 1 text message from a flow" in {
@@ -26,23 +27,24 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
       str shouldBe (
         s"""Content-Length:$size
-|Message-Type:Text
-|--
-|$payload""".stripMargin
-      )
+           |Message-Type:Text
+           |--
+           |$payload""".stripMargin
+        )
     }
   }
 
   it should "write multiple text messages" in {
     val payload = "test msg"
-    val size = payload.size
+    val size = payload.length
 
-    val expectedMessage = s"""Content-Length:$size
-|Message-Type:Text
-|--
-|$payload""".stripMargin
+    val expectedMessage =
+      s"""Content-Length:$size
+         |Message-Type:Text
+         |--
+         |$payload""".stripMargin
 
-    val expectedContent = expectedMessage*10
+    val expectedContent = expectedMessage * 10
 
     val bsFut = Source.repeat(payload)
       .take(10)
@@ -66,8 +68,8 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       .runWith(bsSink)
 
     val bs = Await.result(bsFut, testTimeout)
-    bs.size shouldBe > (bytes.length)
-    bs.indexOfSlice(bytes) shouldBe > (-1)
+    bs.size shouldBe >(bytes.length)
+    bs.indexOfSlice(bytes) shouldBe >(-1)
   }
 
   it should "write a binary message with metaData" in {
@@ -80,8 +82,9 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       "origin" -> "x-nico"
     )
 
-    val expectedHeader = """File-Name:dummy
-|origin:x-nico""".stripMargin
+    val expectedHeader =
+      """File-Name:dummy
+        |origin:x-nico""".stripMargin
 
     val byteString = ByteString(json)
     val bsFut = ProtocolHandlers.binaryMessageFromSource(Source.single(byteString), byteString.length, headers)
@@ -101,7 +104,7 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     val msgFut = Source.single(payload)
       .via(ProtocolHandlers.writeTextMessage)
       .via(ProtocolHandlers.reader)
-    .runWith(Sink.head)
+      .runWith(Sink.head)
 
     msgFut.map { msg =>
       val body = msg.body.utf8String
@@ -133,7 +136,7 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 
   it should "read multiple messages" in {
     val payload = "test msg"
-    val size = payload.size
+    val size = payload.length
 
     val msgsFut = Source.repeat(payload)
       .take(10)
@@ -145,15 +148,15 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     msgs should have size (10)
 
     forAll(msgs) { x =>
-        x.body.utf8String shouldBe (payload)
-      }
+      x.body.utf8String shouldBe (payload)
+    }
   }
 
   it should "serialize and deserialize binary data" in {
     val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
     val bytes = DummyUser.serialize(user)
 
-    val msgsFut= Source.repeat(user)
+    val msgsFut = Source.repeat(user)
       .take(10)
       .map(DummyUser.serialize)
       .map(ByteString.apply)
@@ -174,5 +177,5 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 }
 
 object ProtocolSuite {
-    val bsSink: Sink[ByteString, Future[ByteString]] = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
+  val bsSink: Sink[ByteString, Future[ByteString]] = Sink.fold[ByteString, ByteString](ByteString.empty)(_ ++ _)
 }
