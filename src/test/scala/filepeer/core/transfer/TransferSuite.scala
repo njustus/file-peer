@@ -4,12 +4,16 @@ import filepeer.core.ActorTestSuite
 import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
+
 import scala.concurrent.Await
 import org.apache.commons.lang3.SerializationUtils
 import org.scalatest._
 import java.nio.file._
+
+import cats.data.NonEmptyList
 import filepeer.core.Env
 import org.scalatest.concurrent._
+
 import scala.concurrent.duration._
 
 class TransferSuite extends ActorTestSuite with Eventually with LazyLogging {
@@ -60,11 +64,9 @@ class TransferSuite extends ActorTestSuite with Eventually with LazyLogging {
     sourceFile.path.toFile should exist
 
     val expectedFile = tempDir.resolve(sourceFile.name).toFile
-    val fut = sender.sendFile(localhost, Seq(sourceFile.path))
-     sender.sendMsg(localhost, "a test msg")
+    val fut = sender.sendFile(localhost, NonEmptyList.of(sourceFile.path))
     Await.ready(fut, testTimeout)
-
-    Thread.sleep(10_0000)
+    Thread.sleep(5_000)
 
     expectedFile should exist
     val bytes = better.files.File(expectedFile.toPath).byteArray

@@ -22,19 +22,19 @@ import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
 class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
-  val transferEnv = env.transfer
+  private val transferEnv = env.transfer
+
   Tcp().bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
-    val sink = Flow[ByteString].log("incoming")
-      .via(
-      ProtocolHandlers.reader)
+    val sink = Flow[ByteString].log("incoming-tcp")
+      .via(ProtocolHandlers.reader)
     .via(messageHandler)
     .to(Sink.ignore)
 
     logger.debug("new connection from: {}", connection.remoteAddress)
-    connection.handleWith(Flow.fromSinkAndSource(sink, Source.empty[ByteString]))
+    connection.handleWith(Flow.fromSinkAndSource(sink, Source.single[ByteString](ByteString("initial message"))))
   }
 
-  def messageHandler = Flow[ProtocolMessage].flatMapConcat {
+  def messageHandler: Flow[ProtocolMessage, Object, NotUsed] = Flow[ProtocolMessage].flatMapConcat {
     case textMsg:ProtocolMessage if textMsg.isTextMessage =>
       logger.debug(s"received text msg: $textMsg")
       textMessageHandler(textMsg)

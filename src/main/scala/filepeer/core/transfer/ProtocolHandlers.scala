@@ -26,7 +26,7 @@ object ProtocolHandlers extends LazyLogging {
 
     def ++(bs: ByteString): Header = this.copy(read++bs)
 
-    override def toString(): String = s"Header(read: [${read.size}] bytes)"
+    override def toString: String = s"Header(read: [${read.size}] bytes)"
   }
 
   private case class Body(header:Header, read: ByteString) extends ReadState {
@@ -38,17 +38,16 @@ object ProtocolHandlers extends LazyLogging {
 
     def ++(bs:ByteString): Body = this.copy(read=read++bs)
 
-    override def toString(): String = s"Body(header: $header, read: [${read.size}] bytes)"
+    override def toString: String = s"Body(header: $header, read: [${read.size}] bytes)"
   }
 
   case class ProtocolMessage(header: Map[String, String], body: ByteString) {
-    override def toString(): String = s"ProtocolMessage(header: $header, body: [${body.size}] bytes)"
+    override def toString: String = s"ProtocolMessage(header: $header, body: [${body.size}] bytes)"
 
     def messageType: Option[String] = header.get(DefaultHeaders.MESSAGE_TYPE)
-    def isTextMessage: Boolean = messageType.map(v => v==DefaultHeaders.TEXT_MESSAGE_TYPE).getOrElse(false)
-    def isBinaryMessage: Boolean = messageType.map(v => v==DefaultHeaders.BINARY_MESSAGE_TYPE).getOrElse(false)
+    def isTextMessage: Boolean = messageType.exists(v => v == DefaultHeaders.TEXT_MESSAGE_TYPE)
+    def isBinaryMessage: Boolean = messageType.exists(v => v == DefaultHeaders.BINARY_MESSAGE_TYPE)
   }
-
 
   private val DELIMITER = ByteString("\n--\n")
 
@@ -120,7 +119,7 @@ object ProtocolHandlers extends LazyLogging {
     val metaDataHeaders = Seq(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage) ++ (metaData.map((DefaultHeaders.makeHeader _).tupled))
     val headers = DefaultHeaders.headers(metaDataHeaders:_*)
     logger.debug(s"serializing with headers: ${headers.utf8String}")
-    Source(Seq(headers, DELIMITER)).concatMat(content)(Keep.right).log("bs-source")
+    Source(Seq(headers, DELIMITER)).concatMat(content)(Keep.right)
   }
 }
 
