@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-  mainClassName = "filepeer.ui.FilePeerUi"
+  mainClass = "filepeer.ui.FilePeerUi"
 }
 
 javafx {
@@ -43,25 +43,25 @@ dependencies {
   def circeVersion = "0.12.3"
   def akkaVersion = "2.6.10"
 
-  compile "org.scala-lang:scala-library:${scalaVersion}.4"
+  implementation "org.scala-lang:scala-library:${scalaVersion}.4"
 
-  compile "com.typesafe.akka:akka-stream_${scalaVersion}:${akkaVersion}"
-  compile "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
+  implementation "com.typesafe.akka:akka-stream_${scalaVersion}:${akkaVersion}"
+  implementation "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
 
-  compile "com.github.pureconfig:pureconfig_${scalaVersion}:0.14.0"
-  compile "org.typelevel:cats-core_${scalaVersion}:2.2.0"
-  compile "com.github.pathikrit:better-files_${scalaVersion}:3.9.1"
-  compile "io.scalaland:chimney_${scalaVersion}:0.6.1"
-  compile "com.softwaremill.macwire:macros_${scalaVersion}:2.3.3"
-  compile "ch.qos.logback:logback-classic:1.2.3"
-  compile "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.2"
+  implementation "com.github.pureconfig:pureconfig_${scalaVersion}:0.14.0"
+  implementation "org.typelevel:cats-core_${scalaVersion}:2.2.0"
+  implementation "com.github.pathikrit:better-files_${scalaVersion}:3.9.1"
+  implementation "io.scalaland:chimney_${scalaVersion}:0.6.1"
+  implementation "com.softwaremill.macwire:macros_${scalaVersion}:2.3.3"
+  implementation "ch.qos.logback:logback-classic:1.2.3"
+  implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.2"
 
-  compile "io.circe:circe-core_${scalaVersion}:${circeVersion}"
-  compile "io.circe:circe-generic_${scalaVersion}:${circeVersion}"
-  compile "io.circe:circe-parser_${scalaVersion}:${circeVersion}"
+  implementation "io.circe:circe-core_${scalaVersion}:${circeVersion}"
+  implementation "io.circe:circe-generic_${scalaVersion}:${circeVersion}"
+  implementation "io.circe:circe-parser_${scalaVersion}:${circeVersion}"
 
-  testCompile "org.scalatest:scalatest_${scalaVersion}:3.2.2"
-  testCompile "org.apache.commons:commons-lang3:3.11"
-  testRuntime 'com.vladsch.flexmark:flexmark-all:0.35.10'
+  testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.2"
+  testImplementation "org.apache.commons:commons-lang3:3.11"
+  testRuntimeOnly 'com.vladsch.flexmark:flexmark-all:0.35.10'
 
 }
