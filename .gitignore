@@ -22,9 +22,6 @@ data
 target
 data
 project/target
-private
-deployment/config/auth-svc.settings.yml
-doc/index.html
-doc/readme.html
 README.html
-thesis
+.gradle
+build

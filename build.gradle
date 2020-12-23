@@ -1,0 +1,67 @@
+plugins {
+  id 'application'
+  id 'scala'
+  id "com.github.maiflai.scalatest" version "0.30"
+  id 'org.openjfx.javafxplugin' version '0.0.9'
+}
+
+application {
+  mainClassName = "filepeer.ui.FilePeerUi"
+}
+
+javafx {
+  version = "15.0.1"
+  modules = [
+    'javafx.controls',
+    'javafx.fxml'
+  ]
+}
+
+
+tasks.withType(ScalaCompile) {
+  scalaCompileOptions.additionalParameters = [
+    "-unchecked",
+    "-deprecation",
+    "-feature",
+    "-explaintypes",
+    "-encoding", "utf8",
+    "-language:higherKinds",
+    "-language:postfixOps",
+    "-Xfatal-warnings",
+    "-Ymacro-annotations"
+  ]
+}
+
+
+repositories {
+  mavenCentral()
+  jcenter()
+}
+
+dependencies {
+  def scalaVersion = "2.13"
+  def circeVersion = "0.12.3"
+  def akkaVersion = "2.6.10"
+
+  compile "org.scala-lang:scala-library:${scalaVersion}.4"
+
+  compile "com.typesafe.akka:akka-stream_${scalaVersion}:${akkaVersion}"
+  compile "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
+
+  compile "com.github.pureconfig:pureconfig_${scalaVersion}:0.14.0"
+  compile "org.typelevel:cats-core_${scalaVersion}:2.2.0"
+  compile "com.github.pathikrit:better-files_${scalaVersion}:3.9.1"
+  compile "io.scalaland:chimney_${scalaVersion}:0.6.1"
+  compile "com.softwaremill.macwire:macros_${scalaVersion}:2.3.3"
+  compile "ch.qos.logback:logback-classic:1.2.3"
+  compile "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.2"
+
+  compile "io.circe:circe-core_${scalaVersion}:${circeVersion}"
+  compile "io.circe:circe-generic_${scalaVersion}:${circeVersion}"
+  compile "io.circe:circe-parser_${scalaVersion}:${circeVersion}"
+
+  testCompile "org.scalatest:scalatest_${scalaVersion}:3.2.2"
+  testCompile "org.apache.commons:commons-lang3:3.11"
+  testRuntime 'com.vladsch.flexmark:flexmark-all:0.35.10'
+
+}
