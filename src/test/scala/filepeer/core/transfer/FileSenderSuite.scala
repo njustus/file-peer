@@ -14,20 +14,27 @@ import cats.data.NonEmptyList
 import filepeer.core.Env
 import org.scalatest.concurrent._
 
+import scala.concurrent._
 import scala.concurrent.duration._
 
-class TransferSuite extends ActorTestSuite with Eventually with LazyLogging {
+class FileSenderSuite extends ActorTestSuite with Eventually with LazyLogging {
 
   val tempDir = Files.createTempDirectory("filepeer")
   val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
   implicit val env2:Env = env.copy(transfer=env.transfer.copy(targetDir=tempDir))
   val localhost = env2.transfer.address
 
-  lazy val receiver = new FileReceiver()
+  val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
+  val fileWritten = fileWrittenPromise.future
+  lazy val receiver = new FileReceiver(new FileReceiver.FileSavedObserver() {
+    override def fileSaved(fs:FileReceiver.FileSaved):Unit = fileWrittenPromise.success(fs)
+  })
+
   val transfer = new TransferService(receiver)
   val sender = new FileSender()
 
   override def afterAll(): Unit = {
+    super.afterAll()
     better.files.File(tempDir).delete(true)
   }
 
@@ -66,7 +73,8 @@ class TransferSuite extends ActorTestSuite with Eventually with LazyLogging {
     val expectedFile = tempDir.resolve(sourceFile.name).toFile
     val fut = sender.sendFile(localhost, NonEmptyList.of(sourceFile.path))
     Await.ready(fut, testTimeout)
-    Thread.sleep(5_000)
+    Await.ready(fileWritten, testTimeout)
+    // Thread.sleep(5_000)
 
     expectedFile should exist
     val bytes = better.files.File(expectedFile.toPath).byteArray
