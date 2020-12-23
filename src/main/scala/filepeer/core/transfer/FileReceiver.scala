@@ -23,7 +23,7 @@ import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
 
-class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
+class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env) extends LazyLogging {
   private val transferEnv = env.transfer
 
   import mat.executionContext

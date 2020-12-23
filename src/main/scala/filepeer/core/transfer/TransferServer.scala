@@ -21,10 +21,10 @@ import io.circe.syntax._
 import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
-class TransferServer(fileReceiver: FileReceiver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
+class TransferServer(fileReceiver: FileReceiver)(implicit mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
   private val transferEnv = env.transfer
 
-  Tcp().bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
+  Tcp()(mat.system).bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
     val sink = Flow[ByteString].log("incoming-tcp")
       .via(ProtocolHandlers.reader)
     .via(messageHandler)

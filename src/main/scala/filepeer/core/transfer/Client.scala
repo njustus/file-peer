@@ -15,7 +15,7 @@ import filepeer.core.{Address, Env}
 
 import scala.concurrent.Future
 
-class Client()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
+class Client()(implicit mat: Materializer, env: Env) extends LazyLogging {
 
   def sendFile(address:Address, files:NonEmptyList[Path]): Future[IOResult] = {
     val sources = files.map(Client.sourceFromPath)
@@ -24,13 +24,13 @@ class Client()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) e
     logger.info(s"sending files: {} to $address", files.map(_.getFileName))
 
     val src = Client.sourceFromPath(files.head)
-    Tcp().outgoingConnection(address.host, address.port)
+    Tcp()(mat.system).outgoingConnection(address.host, address.port)
       .runWith(sources, Sink.ignore)
       ._1
   }
 
   def sendMsg(address:Address, msg:String): Future[Done] = {
-    val outgoingFLow = Tcp().outgoingConnection(address.host, address.port)
+    val outgoingFLow = Tcp()(mat.system).outgoingConnection(address.host, address.port)
     Source.single(msg)
       .via(ProtocolHandlers.writeTextMessage)
       .via(outgoingFLow)
