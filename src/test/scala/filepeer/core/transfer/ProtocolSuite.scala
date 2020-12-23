@@ -4,7 +4,8 @@ import filepeer.core.ActorTestSuite
 import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
-import scala.concurrent.Await
+
+import scala.concurrent.{Await, Future}
 import io.circe._
 import io.circe.syntax._
 
@@ -60,8 +61,8 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     val user = DummyUser("Manuel", 22, List("programming", "skating", "skiing", "snowboarding"))
     val bytes = DummyUser.serialize(user)
 
-    val bsFut = Source.single(ByteString(bytes))
-      .via(ProtocolHandlers.writeBinaryMessage())
+    val byteString = ByteString(bytes)
+    val bsFut = ProtocolHandlers.binaryMessageFromSource(Source.single(byteString), byteString.length)
       .runWith(bsSink)
 
     val bs = Await.result(bsFut, testTimeout)
@@ -82,8 +83,8 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
     val expectedHeader = """File-Name:dummy
 |origin:x-nico""".stripMargin
 
-    val bsFut = Source.single(ByteString(json))
-      .via(ProtocolHandlers.writeBinaryMessage(headers))
+    val byteString = ByteString(json)
+    val bsFut = ProtocolHandlers.binaryMessageFromSource(Source.single(byteString), byteString.length, headers)
       .runWith(bsSink)
 
     bsFut.map { bs =>
@@ -156,7 +157,9 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
       .take(10)
       .map(DummyUser.serialize)
       .map(ByteString.apply)
-      .via(ProtocolHandlers.writeBinaryMessage())
+      .flatMapConcat { bs =>
+        ProtocolHandlers.binaryMessageFromSource(Source.single(bs), bs.length)
+      }
       .via(ProtocolHandlers.reader)
       .runWith(Sink.seq)
 
@@ -171,5 +174,5 @@ class ProtocolSuite extends ActorTestSuite with LazyLogging {
 }
 
 object ProtocolSuite {
-    val bsSink = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
+    val bsSink: Sink[ByteString, Future[ByteString]] = Sink.fold[ByteString,ByteString](ByteString.empty)(_++_)
 }

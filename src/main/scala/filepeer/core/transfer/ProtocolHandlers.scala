@@ -105,16 +105,6 @@ object ProtocolHandlers extends LazyLogging {
     List(headers, DELIMITER, ByteString(str))
   }
 
-
-  def writeBinaryMessage(metaData:Seq[(String, String)] = Seq.empty):Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].mapConcat { bsElement =>
-    val size = bsElement.size
-    val metaDataHeaders = Seq(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage) ++ (metaData.map((DefaultHeaders.makeHeader _).tupled))
-    val headers = DefaultHeaders.headers(metaDataHeaders:_*)
-
-    logger.debug(s"serializing BinaryMessage with [$size] bytes")
-    List(headers, DELIMITER, bsElement)
-  }
-
   def binaryMessageFromSource[Mat](content:Source[ByteString, Mat], size:Long, metaData:Seq[(String, String)] = Seq.empty): Source[ByteString, Mat] = {
     val metaDataHeaders = Seq(DefaultHeaders.contentLength(size), DefaultHeaders.binaryMessage) ++ (metaData.map((DefaultHeaders.makeHeader _).tupled))
     val headers = DefaultHeaders.headers(metaDataHeaders:_*)
