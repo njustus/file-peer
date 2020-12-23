@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 
 import akka.NotUsed
 import akka.actor.ActorSystem
+import akka.dispatch.{Dispatchers, MessageDispatcher}
 import akka.stream.{IOResult, Materializer}
 import akka.stream.scaladsl._
 import akka.util.ByteString
@@ -26,7 +27,7 @@ import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env) extends LazyLogging {
   private val transferEnv = env.transfer
 
-  import mat.executionContext
+  private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
 
   def fileWriter: Flow[FileTransfer, IOResult, NotUsed] = {
     Flow[FileTransfer].map { case FileTransfer(fileName, content) =>
@@ -36,7 +37,6 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
       (FileReceiver.FileSaved(fileName, path), bs)
     }
       .mapAsyncUnordered(2) { case (fileSaved, bs) =>
-        //TODO configure separte blocking executor
         Source.single(bs).runWith(FileIO.toPath(fileSaved.path)).map { x =>
           observer.fileSaved(fileSaved)
           x
