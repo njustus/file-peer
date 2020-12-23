@@ -17,7 +17,7 @@ import org.scalatest.concurrent._
 import scala.concurrent._
 import scala.concurrent.duration._
 
-class FileSenderSuite extends ActorTestSuite with Eventually with LazyLogging {
+class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
   val tempDir = Files.createTempDirectory("filepeer")
   val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
@@ -25,23 +25,22 @@ class FileSenderSuite extends ActorTestSuite with Eventually with LazyLogging {
   val localhost = env2.transfer.address
 
   val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
-  val fileWritten = fileWrittenPromise.future
   lazy val receiver = new FileReceiver(new FileReceiver.FileSavedObserver() {
     override def fileSaved(fs:FileReceiver.FileSaved):Unit = fileWrittenPromise.success(fs)
   })
 
-  val transfer = new TransferService(receiver)
-  val sender = new FileSender()
+  val transfer = new TransferServer(receiver)
+  val sender = new Client()
 
   override def afterAll(): Unit = {
     super.afterAll()
-    better.files.File(tempDir).delete(true)
+    better.files.File(tempDir).delete(swallowIOExceptions = true)
   }
 
-    "FileSender" should "read a file into memory" in {
+    "Client/FileSender" should "read a file into memory" in {
     sourceFile.path.toFile should exist
 
-    val bsFut = FileSender.sourceFromPath(sourceFile.path).runWith(ProtocolSuite.bsSink)
+    val bsFut = Client.sourceFromPath(sourceFile.path).runWith(ProtocolSuite.bsSink)
     val bs = Await.result(bsFut, testTimeout)
 
     val expectedBytes = DummyUser.serialize(DummyUser.personInResourceFile)
@@ -57,12 +56,12 @@ class FileSenderSuite extends ActorTestSuite with Eventually with LazyLogging {
   it should "send a file into a stream" in {
     sourceFile.path.toFile should exist
 
-    val msgFut = FileSender.sourceFromPath(sourceFile.path)
+    val msgFut = Client.sourceFromPath(sourceFile.path)
       .via(ProtocolHandlers.reader)
       .runWith(Sink.head)
     val msg = Await.result(msgFut, testTimeout)
 
-    msg.header(TransferService.FILENAME_HEADER) shouldBe (sourceFile.name)
+    msg.header(TransferServer.FILENAME_HEADER) shouldBe (sourceFile.name)
     msg.header(DefaultHeaders.CONTENT_LENGTH).toInt shouldBe (sourceFile.size)
     msg.body.length shouldBe (sourceFile.size)
   }
@@ -73,8 +72,7 @@ class FileSenderSuite extends ActorTestSuite with Eventually with LazyLogging {
     val expectedFile = tempDir.resolve(sourceFile.name).toFile
     val fut = sender.sendFile(localhost, NonEmptyList.of(sourceFile.path))
     Await.ready(fut, testTimeout)
-    Await.ready(fileWritten, testTimeout)
-    // Thread.sleep(5_000)
+    Await.ready(fileWrittenPromise.future, testTimeout)
 
     expectedFile should exist
     val bytes = better.files.File(expectedFile.toPath).byteArray

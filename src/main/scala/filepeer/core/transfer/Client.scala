@@ -15,15 +15,15 @@ import filepeer.core.{Address, Env}
 
 import scala.concurrent.Future
 
-class FileSender()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
+class Client()(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
 
   def sendFile(address:Address, files:NonEmptyList[Path]): Future[IOResult] = {
-    val sources = files.map(FileSender.sourceFromPath)
+    val sources = files.map(Client.sourceFromPath)
       .reduceLeft[Source[ByteString, Future[IOResult]]] { case (src, current) => src.concatMat(current)(Keep.right) }
 
     logger.info(s"sending files: {} to $address", files.map(_.getFileName))
 
-    val src = FileSender.sourceFromPath(files.head)
+    val src = Client.sourceFromPath(files.head)
     Tcp().outgoingConnection(address.host, address.port)
       .runWith(sources, Sink.ignore)
       ._1
@@ -39,7 +39,7 @@ class FileSender()(implicit actorSystem: ActorSystem, mat: Materializer, env: En
   }
 }
 
-object FileSender {
+object Client {
   case class FileContainer(path:Path) extends AnyVal {
     def fileName: String = path.getFileName.toString
     def bytes: Source[ByteString, Future[IOResult]] = FileIO.fromPath(path)
@@ -47,7 +47,7 @@ object FileSender {
   }
 
   def source(fileContainer:FileContainer): Source[ByteString, Future[IOResult]] = {
-    val fileHeader = TransferService.FILENAME_HEADER -> fileContainer.fileName
+    val fileHeader = TransferServer.FILENAME_HEADER -> fileContainer.fileName
     ProtocolHandlers.binaryMessageFromSource(fileContainer.bytes, fileContainer.size,Seq(fileHeader))
   }
 

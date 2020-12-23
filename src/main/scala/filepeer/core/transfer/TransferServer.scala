@@ -11,7 +11,7 @@ import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.{Env, TransferEnv}
-import filepeer.core.transfer.TransferService.{FileTransfer, TransferMsg, TransferPreview}
+import filepeer.core.transfer.TransferServer.{FileTransfer, TransferMsg, TransferPreview}
 import io.circe._
 import io.circe.generic.JsonCodec
 import io.circe.generic.auto._
@@ -21,7 +21,7 @@ import io.circe.syntax._
 import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
-class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
+class TransferServer(fileReceiver: FileReceiver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
   private val transferEnv = env.transfer
 
   Tcp().bind(transferEnv.address.host, transferEnv.address.port).runForeach { connection =>
@@ -53,18 +53,18 @@ class TransferService(fileReceiver: FileReceiver)(implicit actorSystem: ActorSys
   }
 
   private def binaryMessageHandler(binaryMsg:ProtocolMessage) = {
-    binaryMsg.header.get(TransferService.FILENAME_HEADER) match {
+    binaryMsg.header.get(TransferServer.FILENAME_HEADER) match {
       case Some(fileName) =>
         logger.info(s"got a FileTransfer for fileName:$fileName")
         Source.single(FileTransfer(fileName, binaryMsg.body.toArray)).via(fileReceiver.fileWriter)
       case None =>
-        logger.warn(s"binary message without a header:${TransferService.FILENAME_HEADER}. DROPPING IT!")
+        logger.warn(s"binary message without a header:${TransferServer.FILENAME_HEADER}. DROPPING IT!")
         Source.empty
     }
   }
 }
 
-object TransferService {
+object TransferServer {
   @JsonCodec
   sealed trait TransferMsg
   case class TransferPreview(fileNames: List[String]) extends TransferMsg

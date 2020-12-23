@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.io.Udp
 import akka.stream.Materializer
 import filepeer.core.discovery.DiscoveryService
-import filepeer.core.transfer.TransferService
+import filepeer.core.transfer.TransferServer
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -17,7 +17,7 @@ object FilePeerMain {
 
   def main(args: Array[String]): Unit = {
     implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
-    TransferService.createTargetDir(env.transfer)
+    TransferServer.createTargetDir(env.transfer)
 
     implicit val system = ActorSystem("file-peer")
     implicit val mat = Materializer.matFromSystem

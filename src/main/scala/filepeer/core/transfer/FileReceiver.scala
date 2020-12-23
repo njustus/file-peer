@@ -12,7 +12,7 @@ import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.{Env, TransferEnv}
-import filepeer.core.transfer.TransferService.{FileTransfer, TransferMsg, TransferPreview}
+import filepeer.core.transfer.TransferServer.{FileTransfer, TransferMsg, TransferPreview}
 import io.circe._
 import io.circe.generic.JsonCodec
 import io.circe.generic.auto._
@@ -24,7 +24,7 @@ import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
 
 class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit actorSystem: ActorSystem, mat: Materializer, env: Env) extends LazyLogging {
-  val transferEnv = env.transfer
+  private val transferEnv = env.transfer
 
   import mat.executionContext
 
