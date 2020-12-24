@@ -13,7 +13,7 @@ class UiState(val env:Env) {
   private val availableServersProp = new SimpleObjectProperty[Set[DiscoveryService.ClientName]]()
   private val fileSavedProp = new SimpleObjectProperty[FileReceiver.FileSaved]()
 
-  val discoverySubscriber: DiscoveryService.DiscoverySubscriber = new DiscoveryService.DiscoverySubscriber {
+  val discoverySubscriber: DiscoveryService.DiscoveryObserver = new DiscoveryService.DiscoveryObserver {
     override def newClient(client: DiscoveryService.ClientName,
                            allClients: Set[DiscoveryService.ClientName]): Unit = availableServersProp.setValue(allClients)
   }
