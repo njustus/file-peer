@@ -39,7 +39,7 @@ class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.Disc
         case _ => true
       }
       .foreach { case ClientAddress(hostName, port) =>
-      interestee ! DiscoveryManager.ClientName(hostName, addr.getHostName, port)
+      interestee ! DiscoveryService.ClientName(hostName, addr.getHostName, port)
     }
   }
 }
