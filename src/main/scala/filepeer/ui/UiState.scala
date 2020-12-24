@@ -10,18 +10,20 @@ import javafx.collections.FXCollections
 
 class UiState(val env:Env) {
 
-  private val availableServersProp = new SimpleObjectProperty[Set[DiscoveryService.ClientName]]()
+  private val availableServersProp = new SimpleObjectProperty[List[DiscoveryService.ClientName]](List.empty)
   private val fileSavedProp = new SimpleObjectProperty[FileReceiver.FileSaved]()
 
   val discoverySubscriber: DiscoveryService.DiscoveryObserver = new DiscoveryService.DiscoveryObserver {
     override def newClient(client: DiscoveryService.ClientName,
-                           allClients: Set[DiscoveryService.ClientName]): Unit = availableServersProp.setValue(allClients)
+      allClients: Set[DiscoveryService.ClientName]): Unit = {
+      availableServersProp.setValue(allClients.toList)
+    }
   }
 
   val fileSavedSubscriber: FileReceiver.FileSavedObserver = new FileReceiver.FileSavedObserver {
     override def fileSaved(file: FileReceiver.FileSaved): Unit = fileSavedProp.setValue(file)
   }
 
-  def availableServers$:ObservableValue[Set[DiscoveryService.ClientName]] = availableServersProp
+  def availableServers$:ObservableValue[List[DiscoveryService.ClientName]] = availableServersProp
   def fileSaved$:ObservableValue[FileReceiver.FileSaved] = fileSavedProp
 }
