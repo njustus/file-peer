@@ -25,7 +25,7 @@ object FilePeerMain {
       system.terminate()
     }
 
-    val discoveryService = new DiscoveryService()
+//    val discoveryService = new DiscoveryService()
     //val transferService = new TransferService()
 
     Await.ready(system.whenTerminated, Duration.Inf)
