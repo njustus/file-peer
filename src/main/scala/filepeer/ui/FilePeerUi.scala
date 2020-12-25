@@ -9,7 +9,7 @@ import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.layout.{Pane, StackPane, VBox}
 import javafx.stage.Stage
-import pureconfig.ConfigSource;
+import pureconfig.ConfigSource
 
 class FilePeerUi extends Application {
   override def start(primaryStage:Stage):Unit = {
@@ -18,7 +18,10 @@ class FilePeerUi extends Application {
     val state = new UiState(env)
 
     val (mainView, controller) = loadRootFxml(state)
-    primaryStage.setScene(new Scene(mainView, 600, 400));
+    val scene = new Scene(mainView, 600, 400)
+    scene.getStylesheets.add("style.css")
+    primaryStage.setScene(scene)
+
 
     val backend = new BackendModule(state.discoverySubscriber, state.fileSavedSubscriber)
 
@@ -28,9 +31,7 @@ class FilePeerUi extends Application {
   }
 
   private def loadRootFxml(state: UiState): (Pane, MainViewController) = {
-    val fxmlLoader = new FXMLLoader()
-    val mainView:VBox = fxmlLoader.load(this.getClass.getResourceAsStream("/views/main-view.fxml"))
-    val ctrl:MainViewController = fxmlLoader.getController
+    val (mainView, ctrl) = ComponentFactory.newRootComponent
     ctrl.connectUiState(state)
     (mainView, ctrl)
   }
