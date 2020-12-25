@@ -6,13 +6,14 @@ import javafx.scene.Node
 import java.io.InputStream
 import javafx.fxml.FXMLLoader
 import filepeer.core.discovery.DiscoveryService
+import java.net.URL
 
 object ComponentFactory {
-  private def resource(fxmlFileName:String): InputStream = ComponentFactory.getClass.getResourceAsStream(s"/views/$fxmlFileName")
+  private def resource(fxmlFileName:String): URL = ComponentFactory.getClass.getResource(s"/views/$fxmlFileName")
 
   private def newFxmlControllerComponent[N<:Node, C](fxmlFileName:String): (N, C) = {
-    val fxmlLoader = new FXMLLoader()
-    val view:N = fxmlLoader.load(resource(fxmlFileName))
+    val fxmlLoader = new FXMLLoader(resource(fxmlFileName))
+    val view:N = fxmlLoader.load()
     val ctrl:C = fxmlLoader.getController
     (view, ctrl)
   }

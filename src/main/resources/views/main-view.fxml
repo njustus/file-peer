@@ -6,7 +6,6 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -59,7 +58,7 @@
          <center>
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                <children>
-                  <TitledPane fx:id="serverInfoView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Server" />
+                  <fx:include source="client-details.fxml" />
                   <StackPane fx:id="dragDropPane" prefHeight="150.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="Drag &amp; Drop files here" />
