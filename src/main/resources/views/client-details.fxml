@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.String?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.HBox?>
@@ -11,26 +12,42 @@
          <children>
             <HBox>
                <children>
-                  <Label styleClass="server-details-description" text="Server" />
-                  <Label fx:id="serverNameLbl" text="server" />
+                  <Label text="Server">
+                     <styleClass>
+                        <String fx:value="server-details" />
+                        <String fx:value="server-details-description" />
+                     </styleClass></Label>
+                  <Label fx:id="serverNameLbl" styleClass="server-details" text="server" />
                </children>
             </HBox>
             <HBox layoutX="20.0" layoutY="20.0">
                <children>
-                  <Label styleClass="server-details-description" text="IP" />
-                  <Label fx:id="ipLbl" text="ip" />
+                  <Label text="IP">
+                     <styleClass>
+                        <String fx:value="server-details" />
+                        <String fx:value="server-details-description" />
+                     </styleClass></Label>
+                  <Label fx:id="ipLbl" styleClass="server-details" text="ip" />
                </children>
             </HBox>
             <HBox layoutX="20.0" layoutY="20.0">
                <children>
-                  <Label styleClass="server-details-description" text="Last Connected" />
-                  <Label fx:id="lastConnectedLbl" text="connected" />
+                  <Label text="Last Connected">
+                     <styleClass>
+                        <String fx:value="server-details" />
+                        <String fx:value="server-details-description" />
+                     </styleClass></Label>
+                  <Label fx:id="lastConnectedLbl" styleClass="server-details" text="connected" />
                </children>
             </HBox>
             <HBox layoutX="20.0" layoutY="20.0">
                <children>
-                  <Label styleClass="server-details-description" text="Shared Files" />
-                  <Label fx:id="sharedFilesLbl" text="files" />
+                  <Label text="Shared Files">
+                     <styleClass>
+                        <String fx:value="server-details" />
+                        <String fx:value="server-details-description" />
+                     </styleClass></Label>
+                  <Label fx:id="sharedFilesLbl" styleClass="server-details" text="files" />
                </children>
             </HBox>
          </children>

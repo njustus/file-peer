@@ -12,6 +12,9 @@
 }
 
 
+.server-details {
+  -fx-label-padding: 0.5em 0.25em;
+}
 .server-details-description {
   -fx-font-weight: bold;
 }

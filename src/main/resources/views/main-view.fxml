@@ -58,7 +58,7 @@
          <center>
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                <children>
-                  <fx:include source="client-details.fxml" />
+                  <fx:include fx:id="clientDetails" source="client-details.fxml" />
                   <StackPane fx:id="dragDropPane" prefHeight="150.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="Drag &amp; Drop files here" />
