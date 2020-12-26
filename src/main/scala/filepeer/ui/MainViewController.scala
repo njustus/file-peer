@@ -10,8 +10,10 @@ import com.typesafe.scalalogging.LazyLogging
 import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
+
 import javafx.scene.layout.StackPane
 import javafx.scene.control.SelectionMode
+import javafx.scene.input.{DragEvent, TransferMode}
 
 
 class MainViewController extends LazyLogging with CallbackImplicits with Initializable {
@@ -38,5 +40,20 @@ class MainViewController extends LazyLogging with CallbackImplicits with Initial
     serverListView.itemsProperty.bind(
       Bindings.createObjectBinding(() => FXCollections.observableList(state.availableServers$.getValue.asJava), state.availableServers$)
     )
+  }
+
+  def onDragOver(ev:DragEvent): Unit = {
+    if(ev.getDragboard.hasFiles) {
+      dragDropPane.getStyleClass.addAll("drag-drop-pane--active")
+      ev.acceptTransferModes(TransferMode.COPY)
+    }
+  }
+
+  def onFileDropped(ev:DragEvent): Unit = {
+    val board = ev.getDragboard
+    val droppedFiles = board.getFiles.asScala.toList
+    logger.info(s"dropped files: $droppedFiles")
+
+    dragDropPane.getStyleClass.removeAll("drag-drop-pane--active")
   }
 }
