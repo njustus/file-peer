@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TitledPane fx:id="serverInfoView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Server" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.ClientDetailsController">
+<TitledPane fx:id="serverInfoView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Server" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.ClientDetailsController" stylesheets="style.css">
    <content>
       <VBox prefHeight="200.0" prefWidth="100.0">
          <children>

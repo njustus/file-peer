@@ -19,7 +19,6 @@ class FilePeerUi extends Application {
 
     val (mainView, controller) = loadRootFxml(state)
     val scene = new Scene(mainView, 600, 400)
-    scene.getStylesheets.add("style.css")
     primaryStage.setScene(scene)
 
 

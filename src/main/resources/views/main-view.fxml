@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.MainViewController">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.MainViewController" stylesheets="style.css">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -59,7 +59,7 @@
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                <children>
                   <fx:include fx:id="clientDetails" source="client-details.fxml" />
-                  <StackPane fx:id="dragDropPane" prefHeight="150.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                  <StackPane fx:id="dragDropPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" VBox.vgrow="ALWAYS">
                      <children>
                         <Label text="Drag &amp; Drop files here" />
                      </children>

@@ -18,3 +18,14 @@
 .server-details-description {
   -fx-font-weight: bold;
 }
+
+.drag-drop-pane {
+
+}
+
+.drag-drop-pane--active {
+  -fx-border-width: 2px;
+  -fx-border-color: red;
+  -fx-background-color: white;
+  -fx-font-weight: bold;
+}
