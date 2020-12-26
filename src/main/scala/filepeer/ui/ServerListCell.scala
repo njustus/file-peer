@@ -17,8 +17,9 @@ class ServerListCell() extends ListCell[DiscoveryService.ClientName] {
   rootNode.getChildren.addAll(nameLbl, addressLbl)
 
   override protected def updateItem(clientName: DiscoveryService.ClientName, empty: Boolean): Unit = {
+    super.updateItem(clientName, empty)
+
     if(empty || clientName == null) {
-      setText(null)
       setGraphic(null)
     } else {
       nameLbl.setText(clientName.hostName)

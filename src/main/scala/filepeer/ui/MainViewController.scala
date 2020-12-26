@@ -26,11 +26,11 @@ class MainViewController extends LazyLogging with CallbackImplicits with Initial
   @FXML var clientDetailsController: ClientDetailsController = null
 
   override def initialize(location: URL, resource: ResourceBundle): Unit = {
-    // serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
+     serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
 
     require(clientDetailsController != null, "injected child controller 'ClientDetailsController' can not be null!")
-    serverListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE)
-    serverListView.getSelectionModel().selectedItemProperty().addListener(clientDetailsController.update _)
+    serverListView.getSelectionModel.selectedItemProperty().addListener(clientDetailsController.update _)
+    serverListView.getSelectionModel.setSelectionMode(SelectionMode.SINGLE)
   }
 
 
