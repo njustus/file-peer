@@ -5,7 +5,7 @@ import akka.stream.Materializer
 import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
 import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
-import filepeer.core.transfer.{FileReceiver, TransferServer}
+import filepeer.core.transfer.{Client, FileReceiver, TransferServer}
 import pureconfig.ConfigSource
 
 class BackendModule(discoverySubscriber: DiscoveryObserver, receiverSubscriber: FileSavedObserver)(implicit env: Env) {
@@ -20,4 +20,5 @@ class BackendModule(discoverySubscriber: DiscoveryObserver, receiverSubscriber: 
   val fileReceiver = new FileReceiver(receiverSubscriber)
   val discoveryService = new DiscoveryService(discoverySubscriber)
   val transferServer = new TransferServer(fileReceiver)
+  val fileSender = new Client()
 }

@@ -1,7 +1,7 @@
 package filepeer.core.discovery
 
 import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
-import filepeer.core.{DiscoveryEnv, Env, discovery}
+import filepeer.core.{Address, DiscoveryEnv, Env, discovery}
 
 import scala.collection.mutable
 
@@ -26,6 +26,7 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 
 object DiscoveryService {
   case class ClientName(hostName: String, ip: String, port: Int) {
+    def address: Address = Address(ip, port)
     override def equals(obj: Any): Boolean = obj match {
       case ClientName(_, ip, port) => this.ip == ip
       case _ => false
