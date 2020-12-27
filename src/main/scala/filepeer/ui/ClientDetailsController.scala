@@ -7,11 +7,12 @@ import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
+import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.discovery.DiscoveryService
 import filepeer.ui.state.{UiState, UiStateController}
 import rx.lang.scala.Subscription
 
-class ClientDetailsController() extends Initializable with UiStateController {
+class ClientDetailsController() extends LazyLogging with Initializable with UiStateController {
 
   @FXML var serverInfoView:  TitledPane = null
 

@@ -4,12 +4,7 @@ import filepeer.core.{BackendModule, Env}
 import filepeer.ui.components.ComponentFactory
 import filepeer.ui.state.UiState
 import javafx.application.Application
-import javafx.event.ActionEvent
-import javafx.event.EventHandler
-import javafx.fxml.FXMLLoader
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.layout.{Pane, StackPane, VBox}
 import javafx.stage.Stage
 import pureconfig.ConfigSource
 

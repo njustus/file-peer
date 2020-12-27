@@ -19,10 +19,9 @@ import javafx.scene.control.SelectionMode
 import javafx.scene.input.{DragEvent, TransferMode}
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
-import rx.subscriptions.Subscriptions
 
 
-class MainViewController extends LazyLogging with CallbackImplicits with Initializable with UiStateController {
+class MainViewController extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
 
   import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
