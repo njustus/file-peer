@@ -1,11 +1,10 @@
-package filepeer.ui
+package filepeer.ui.components
 
 import filepeer.core.discovery.DiscoveryService
-import javafx.scene.control.ListCell
+import javafx.scene.control.{Label, ListCell}
 import javafx.scene.layout.VBox
-import javafx.scene.control.Label
 
-class ServerListCell() extends ListCell[DiscoveryService.ClientName] {
+private[components] class ServerListCell() extends ListCell[DiscoveryService.ClientName] {
 
   private val rootNode = new VBox()
   private val nameLbl = new Label()

@@ -11,6 +11,7 @@ import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
+import filepeer.ui.components.ComponentFactory
 import javafx.scene.layout.StackPane
 import javafx.scene.control.SelectionMode
 import javafx.scene.input.{DragEvent, TransferMode}

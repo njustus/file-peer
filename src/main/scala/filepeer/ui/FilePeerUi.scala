@@ -1,6 +1,7 @@
 package filepeer.ui
 
 import filepeer.core.{BackendModule, Env}
+import filepeer.ui.components.ComponentFactory
 import javafx.application.Application
 import javafx.event.ActionEvent
 import javafx.event.EventHandler

@@ -53,9 +53,9 @@ dependencies {
   implementation "org.typelevel:cats-core_${scalaVersion}:2.2.0"
   implementation "com.github.pathikrit:better-files_${scalaVersion}:3.9.1"
   implementation "io.scalaland:chimney_${scalaVersion}:0.6.1"
-  implementation "com.softwaremill.macwire:macros_${scalaVersion}:2.3.3"
   implementation "ch.qos.logback:logback-classic:1.2.3"
   implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.2"
+  implementation "io.reactivex:rxscala_${scalaVersion}:0.27.0"
 
   implementation "io.circe:circe-core_${scalaVersion}:${circeVersion}"
   implementation "io.circe:circe-generic_${scalaVersion}:${circeVersion}"
