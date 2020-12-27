@@ -25,7 +25,12 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 }
 
 object DiscoveryService {
-  case class ClientName(hostName: String, ip: String, port: Int)
+  case class ClientName(hostName: String, ip: String, port: Int) {
+    override def equals(obj: Any): Boolean = obj match {
+      case ClientName(_, ip, port) => this.ip == ip
+      case _ => false
+    }
+  }
 
   trait DiscoveryObserver {
     def newClient(client:ClientName, allClients:Set[ClientName]): Unit
