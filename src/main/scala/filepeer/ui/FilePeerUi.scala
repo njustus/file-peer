@@ -2,6 +2,7 @@ package filepeer.ui
 
 import filepeer.core.{BackendModule, Env}
 import filepeer.ui.components.ComponentFactory
+import filepeer.ui.state.UiState
 import javafx.application.Application
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -38,7 +39,7 @@ class FilePeerUi extends Application {
 }
 
 object FilePeerUi {
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     Application.launch(classOf[FilePeerUi], args:_*)
   }
 }

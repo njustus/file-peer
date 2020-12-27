@@ -6,7 +6,9 @@ import javafx.scene.control.TitledPane
 import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
+
 import filepeer.core.discovery.DiscoveryService
+import filepeer.ui.state.UiState
 
 class ClientDetailsController() extends Initializable {
 
@@ -25,7 +27,11 @@ class ClientDetailsController() extends Initializable {
     sharedFilesLbl.setText(0.toString)
   }
 
-  def update(clientName: DiscoveryService.ClientName): Unit = {
+  def connectUiState(state: UiState): Unit = {
+    state.currentClient$.subscribe(update _)
+  }
+
+  private def update(clientName: DiscoveryService.ClientName): Unit = {
     println(s"newly selected: $clientName")
 
     serverNameLbl.setText(clientName.hostName)
