@@ -8,9 +8,10 @@ import java.net.URL
 import java.util.ResourceBundle
 
 import filepeer.core.discovery.DiscoveryService
-import filepeer.ui.state.UiState
+import filepeer.ui.state.{UiState, UiStateController}
+import rx.lang.scala.Subscription
 
-class ClientDetailsController() extends Initializable {
+class ClientDetailsController() extends Initializable with UiStateController {
 
   @FXML var serverInfoView:  TitledPane = null
 
@@ -27,9 +28,7 @@ class ClientDetailsController() extends Initializable {
     sharedFilesLbl.setText(0.toString)
   }
 
-  def connectUiState(state: UiState): Unit = {
-    state.currentClient$.subscribe(update _)
-  }
+  override def connectUiState(state: UiState): Subscription = state.currentClient$.subscribe(update _)
 
   private def update(clientName: DiscoveryService.ClientName): Unit = {
     println(s"newly selected: $clientName")

@@ -4,6 +4,7 @@ import java.net.URL
 
 import filepeer.core.discovery.DiscoveryService
 import filepeer.ui.MainViewController
+import filepeer.ui.state.UiStateController
 import javafx.fxml.FXMLLoader
 import javafx.scene.Node
 import javafx.scene.control.ListCell
@@ -19,7 +20,7 @@ object ComponentFactory {
     (view, ctrl)
   }
 
-  def newRootComponent: (VBox, MainViewController) = newFxmlControllerComponent[VBox, MainViewController]("main-view.fxml")
+  def newRootComponent: (VBox, UiStateController) = newFxmlControllerComponent[VBox, MainViewController]("main-view.fxml")
 
   def newServerListCell: ListCell[DiscoveryService.ClientName] = new ServerListCell()
 }

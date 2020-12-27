@@ -19,23 +19,22 @@ class FilePeerUi extends Application {
     implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
     val state = new UiState(env)
 
-    val (mainView, controller) = loadRootFxml(state)
+    val (mainView, controller) = ComponentFactory.newRootComponent
+    val subscriptions = controller.connectUiState(state)
+
     val scene = new Scene(mainView, 600, 400)
     primaryStage.setScene(scene)
-
 
     val backend = new BackendModule(state.discoverySubscriber, state.fileSavedSubscriber)
 
     primaryStage.setTitle("FilePeer")
-    primaryStage.setOnCloseRequest(ev => backend.system.terminate())
+    primaryStage.setOnCloseRequest(ev => {
+      backend.system.terminate()
+      subscriptions.unsubscribe()
+    })
     primaryStage.show();
   }
 
-  private def loadRootFxml(state: UiState): (Pane, MainViewController) = {
-    val (mainView, ctrl) = ComponentFactory.newRootComponent
-    ctrl.connectUiState(state)
-    (mainView, ctrl)
-  }
 }
 
 object FilePeerUi {

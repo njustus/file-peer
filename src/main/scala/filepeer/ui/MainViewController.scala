@@ -12,16 +12,17 @@ import java.net.URL
 import java.util.ResourceBundle
 
 import filepeer.ui.components.ComponentFactory
-import filepeer.ui.state.UiState
+import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.state.actions.UpdateCurrentClient
 import javafx.scene.layout.StackPane
 import javafx.scene.control.SelectionMode
 import javafx.scene.input.{DragEvent, TransferMode}
 import rx.lang.scala.Subscription
+import rx.lang.scala.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
 
 
-class MainViewController extends LazyLogging with CallbackImplicits with Initializable {
+class MainViewController extends LazyLogging with CallbackImplicits with Initializable with UiStateController {
 
   import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
@@ -30,7 +31,7 @@ class MainViewController extends LazyLogging with CallbackImplicits with Initial
 
   @FXML var dragDropPane: StackPane = null
 
-  @FXML var clientDetailsController: ClientDetailsController = null
+  @FXML var clientDetailsController: UiStateController = null
 
   override def initialize(location: URL, resource: ResourceBundle): Unit = {
      serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
@@ -39,19 +40,16 @@ class MainViewController extends LazyLogging with CallbackImplicits with Initial
     serverListView.getSelectionModel.setSelectionMode(SelectionMode.SINGLE)
   }
 
+  override def connectUiState(state: UiState): Subscription = {
+    val childSubscriptions = clientDetailsController.connectUiState(state)
 
-  def connectUiState(state: UiState): Unit = {
-    clientDetailsController.connectUiState(state)
-
-    state.availableServers$
+    val serverSub = state.availableServers$
       .map(xs => FXCollections.observableList(xs.asJava))
-      .subscribe(xs => {
-        println("new xs: "+xs)
-        serverListView.setItems(xs)
-      })
+      .subscribe(serverListView.setItems _)
 
     val selectedListener = state.dispatchAction.compose(UpdateCurrentClient.apply)
     serverListView.getSelectionModel.selectedItemProperty.addListener(selectedListener)
+    CompositeSubscription(childSubscriptions, serverSub)
   }
 
   def onDragOver(ev:DragEvent): Unit = {
