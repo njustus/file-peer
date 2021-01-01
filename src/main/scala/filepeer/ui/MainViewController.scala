@@ -11,6 +11,8 @@ import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
+import cats.data.NonEmptyList
+import filepeer.core.transfer.Client
 import filepeer.ui.components.ComponentFactory
 import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.state.actions.UpdateCurrentClient
@@ -19,7 +21,7 @@ import javafx.scene.control.SelectionMode
 import javafx.scene.input.{DragEvent, TransferMode}
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
-
+import scala.concurrent.ExecutionContext.Implicits._
 
 class MainViewController extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
 
@@ -31,6 +33,8 @@ class MainViewController extends LazyLogging with Initializable with CallbackImp
   @FXML var dragDropPane: StackPane = null
 
   @FXML var clientDetailsController: UiStateController = null
+
+  private var fileSender: Client = null
 
   override def initialize(location: URL, resource: ResourceBundle): Unit = {
      serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
@@ -51,6 +55,8 @@ class MainViewController extends LazyLogging with Initializable with CallbackImp
     CompositeSubscription(childSubscriptions, serverSub)
   }
 
+  def setFileSender(client:Client):Unit = fileSender = client //TODO find better alternative than setter
+
   def onDragOver(ev:DragEvent): Unit = {
     if(ev.getDragboard.hasFiles) {
       dragDropPane.getStyleClass.addAll("drag-drop-pane--active")
@@ -64,5 +70,15 @@ class MainViewController extends LazyLogging with Initializable with CallbackImp
     logger.info(s"dropped files: $droppedFiles")
 
     dragDropPane.getStyleClass.removeAll("drag-drop-pane--active")
+
+    NonEmptyList.fromList(droppedFiles) match {
+      case Some(files) =>
+        val address = serverListView.getSelectionModel.getSelectedItem.address
+        val paths = files.map(_.toPath)
+        fileSender
+          .sendFile(address, paths)
+          .foreach(_ => logger.info(s"$files send to $address")) //TODO notify UI
+      case None => logger.warn("Ignoring dropped empty file list!")
+    }
   }
 }

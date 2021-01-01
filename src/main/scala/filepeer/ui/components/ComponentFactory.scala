@@ -20,7 +20,7 @@ object ComponentFactory {
     (view, ctrl)
   }
 
-  def newRootComponent: (VBox, UiStateController) = newFxmlControllerComponent[VBox, MainViewController]("main-view.fxml")
+  def newRootComponent: (VBox, MainViewController) = newFxmlControllerComponent[VBox, MainViewController]("main-view.fxml")
 
   def newServerListCell: ListCell[DiscoveryService.ClientName] = new ServerListCell()
 }
