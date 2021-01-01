@@ -1,5 +1,7 @@
 package filepeer.core.transfer
 
+import java.nio.charset.StandardCharsets
+
 import filepeer.core.ActorTestSuite
 import akka.stream.scaladsl._
 import akka.util.ByteString
@@ -13,9 +15,11 @@ import java.nio.file._
 import cats.data.NonEmptyList
 import filepeer.core.Env
 import org.scalatest.concurrent._
+import rx.lang.scala.Subject
 
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.util.Using
 
 class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
@@ -24,9 +28,9 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
   implicit val env2:Env = env.copy(transfer=env.transfer.copy(targetDir=tempDir))
   val localhost = env2.transfer.address
 
-  val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
+  private val fileWritten$ = Subject[FileReceiver.FileSaved]()
   lazy val receiver = new FileReceiver(new FileReceiver.FileSavedObserver() {
-    override def fileSaved(fs:FileReceiver.FileSaved):Unit = fileWrittenPromise.success(fs)
+    override def fileSaved(fs:FileReceiver.FileSaved):Unit = fileWritten$.onNext(fs)
   })
 
   val transfer = new TransferServer(receiver)
@@ -35,6 +39,7 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
   override def afterAll(): Unit = {
     super.afterAll()
     better.files.File(tempDir).delete(swallowIOExceptions = true)
+    fileWritten$.onCompleted()
   }
 
     "Client/FileSender" should "read a file into memory" in {
@@ -69,6 +74,12 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
   it should "send a file over wire" in {
     sourceFile.path.toFile should exist
 
+    val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
+    fileWritten$
+      .filter(_.name===sourceFile.name)
+      .first
+      .subscribe(x =>fileWrittenPromise.success(x))
+
     val expectedFile = tempDir.resolve(sourceFile.name).toFile
     val fut = sender.sendFile(localhost, NonEmptyList.of(sourceFile.path))
     Await.ready(fut, testTimeout)
@@ -78,5 +89,37 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
     val bytes = better.files.File(expectedFile.toPath).byteArray
     val fileUser = DummyUser.deserialize(bytes)
     fileUser shouldBe (DummyUser.personInResourceFile)
+  }
+
+  "The receiver" should "read from tcp till file end reached, even if the file is big" in {
+    val source = better.files.File.newTemporaryFile("big")
+    val requiredBytes = 20 * 1024 * 1024 //20MB
+    val charset = StandardCharsets.UTF_8
+    val line = "this is a dummy line."
+    val byteSize = line.getBytes(charset).length
+
+    Using.resource(source) { _ =>
+      val writingSourceFile = Source.repeat(line)
+        .take(Math.ceil(requiredBytes.toDouble / byteSize.toDouble).toInt)
+        .map(x => ByteString.apply(x, charset))
+        .runWith(FileIO.toPath(source.path))
+
+      Await.ready(writingSourceFile, testTimeout)
+      require(source.size >= requiredBytes, s"the generated source file must have a size >= $requiredBytes")
+
+      val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
+      fileWritten$
+        .filter(_.name === source.name)
+        .first
+        .subscribe(x => fileWrittenPromise.success(x))
+
+      val fut = sender.sendFile(localhost, NonEmptyList.of(source.path))
+      Await.ready(fut, testTimeout)
+      val fileWritten = Await.result(fileWrittenPromise.future, testTimeout)
+
+      fileWritten.path.toFile should exist
+      fileWritten.name shouldBe (source.name)
+      Files.size(fileWritten.path) shouldBe (source.size)
+    }(rsc => rsc.delete())
   }
 }
