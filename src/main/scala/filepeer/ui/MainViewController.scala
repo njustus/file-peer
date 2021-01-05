@@ -23,7 +23,7 @@ import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 import scala.concurrent.ExecutionContext.Implicits._
 
-class MainViewController extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
+class MainViewController(fileSender:Client) extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
 
   import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
@@ -33,8 +33,6 @@ class MainViewController extends LazyLogging with Initializable with CallbackImp
   @FXML var dragDropPane: StackPane = null
 
   @FXML var clientDetailsController: UiStateController = null
-
-  private var fileSender: Client = null
 
   override def initialize(location: URL, resource: ResourceBundle): Unit = {
      serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
@@ -54,8 +52,6 @@ class MainViewController extends LazyLogging with Initializable with CallbackImp
     serverListView.getSelectionModel.selectedItemProperty.addListener(selectedListener)
     CompositeSubscription(childSubscriptions, serverSub)
   }
-
-  def setFileSender(client:Client):Unit = fileSender = client //TODO find better alternative than setter
 
   def onDragOver(ev:DragEvent): Unit = {
     if(ev.getDragboard.hasFiles) {

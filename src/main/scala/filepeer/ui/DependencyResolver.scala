@@ -9,6 +9,7 @@ class DependencyResolver(uiState: UiState, backend: BackendModule)(implicit env:
 
   private val knownInstances = Set(uiState, env, backend.fileSender)
   private val clazzToInstances = knownInstances.map(x => (x.getClass, x)).toMap
+  val componentFactory: ComponentFactory = new ComponentFactory(this)
 
   logger.debug(s"known classes: ${clazzToInstances.keys}")
 

@@ -14,9 +14,9 @@ class FilePeerUi extends Application {
     implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
     val state = new UiState(env)
     val backend = new BackendModule(state.discoverySubscriber, state.fileSavedSubscriber)
+    val resolver = new DependencyResolver(state, backend)
 
-    val (mainView, controller) = ComponentFactory.newRootComponent
-    controller.setFileSender(backend.fileSender)
+    val (mainView, controller) = resolver.componentFactory.newRootComponent
     val subscriptions = controller.connectUiState(state)
 
     val scene = new Scene(mainView, 600, 400)
