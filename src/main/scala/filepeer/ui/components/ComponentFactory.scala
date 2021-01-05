@@ -21,10 +21,9 @@ class ComponentFactory(diResolver: DependencyResolver) {
 
   def newRootComponent: (VBox, MainViewController) = newFxmlControllerComponent[VBox, MainViewController]("main-view.fxml")
 
+  def newServerListCell: ListCell[DiscoveryService.ClientName] = new ServerListCell()
 }
 
 object ComponentFactory {
   private def resource(fxmlFileName: String): URL = ComponentFactory.getClass.getResource(s"/views/$fxmlFileName")
-
-  def newServerListCell: ListCell[DiscoveryService.ClientName] = new ServerListCell()
 }

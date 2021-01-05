@@ -6,10 +6,10 @@ import filepeer.ui.components.ComponentFactory
 import filepeer.ui.state.UiState
 
 class DependencyResolver(uiState: UiState, backend: BackendModule)(implicit env: Env) extends LazyLogging {
-
-  private val knownInstances = Set(uiState, env, backend.fileSender)
-  private val clazzToInstances = knownInstances.map(x => (x.getClass, x)).toMap
   val componentFactory: ComponentFactory = new ComponentFactory(this)
+
+  private val knownInstances = Set(uiState, env, backend.fileSender, componentFactory)
+  private val clazzToInstances = knownInstances.map(x => (x.getClass, x)).toMap
 
   logger.debug(s"known classes: ${clazzToInstances.keys}")
 

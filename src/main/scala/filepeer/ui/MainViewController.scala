@@ -2,9 +2,7 @@ package filepeer.ui
 
 import javafx.fxml.FXML
 import javafx.scene.control.ListView
-import javafx.scene.control.TitledPane
 import filepeer.core.discovery.DiscoveryService
-import javafx.beans.binding.Bindings
 import javafx.collections.FXCollections
 import com.typesafe.scalalogging.LazyLogging
 import javafx.fxml.Initializable
@@ -23,7 +21,7 @@ import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 import scala.concurrent.ExecutionContext.Implicits._
 
-class MainViewController(fileSender:Client) extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
+class MainViewController(fileSender: Client, componentFactory: ComponentFactory) extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
 
   import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
@@ -35,7 +33,7 @@ class MainViewController(fileSender:Client) extends LazyLogging with Initializab
   @FXML var clientDetailsController: UiStateController = null
 
   override def initialize(location: URL, resource: ResourceBundle): Unit = {
-     serverListView.setCellFactory(_ => ComponentFactory.newServerListCell)
+     serverListView.setCellFactory(_ => componentFactory.newServerListCell)
 
     require(clientDetailsController != null, "injected child controller 'ClientDetailsController' can not be null!")
     serverListView.getSelectionModel.setSelectionMode(SelectionMode.SINGLE)
