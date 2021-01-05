@@ -29,6 +29,8 @@ class UiState(val env:Env) {
 }
 
 object UiState {
+  def apply()(implicit env:Env): UiState = new UiState(env)
+
   private def stateReducer(state: FPState, action: StateAction): FPState = action match {
     case UpdateAvailableClients(clients) => state.copy(availableClients = clients)
     case UpdateCurrentClient(client) => state.copy(currentClient = Some(client))

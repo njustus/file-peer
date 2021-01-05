@@ -2,8 +2,10 @@ package filepeer.ui
 
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.{BackendModule, Env}
+import filepeer.ui.components.ComponentFactory
+import filepeer.ui.state.UiState
 
-class DependencyResolver(backend: BackendModule)(implicit env: Env) extends LazyLogging {
+class DependencyResolver(uiState: UiState, backend: BackendModule)(implicit env: Env) extends LazyLogging {
 
   private val knownInstances = Set(env, backend.fileSender)
   private val clazzToInstances = knownInstances.map(x => (x.getClass, x)).toMap

@@ -7,6 +7,7 @@ import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
 import filepeer.core.transfer.{Client, FileReceiver}
 import filepeer.core.transfer.FileReceiver.FileSavedObserver
+import filepeer.ui.state.UiState
 
 class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   private val discoveryObserver = new DiscoveryObserver {
@@ -17,7 +18,7 @@ class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   }
 
   val backendModule = new BackendModule(discoveryObserver, fileObserver)
-  val resolver = new DependencyResolver(backendModule)
+  val resolver = new DependencyResolver(UiState(), backendModule)
 
   "The 'DependencyResolver'" should "resolve a service by its class symbol" in {
     val client = resolver.getBean(classOf[Client])
