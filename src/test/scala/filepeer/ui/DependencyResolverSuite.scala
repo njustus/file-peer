@@ -7,6 +7,7 @@ import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
 import filepeer.core.transfer.{Client, FileReceiver}
 import filepeer.core.transfer.FileReceiver.FileSavedObserver
+import filepeer.ui.DependencyResolverSuite.{DummyClass, DummyController}
 import filepeer.ui.state.UiState
 
 class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
@@ -33,4 +34,23 @@ class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   it should "throw an exception for unknown classes" in {
     an [IllegalArgumentException] shouldBe thrownBy(resolver.getBean(classOf[FilePeerTestSuite]))
   }
+
+  it should "instantiate the main controller if it knows their dependents" in {
+    val ctrl = resolver.getController(classOf[MainViewController])
+    ctrl shouldBe a [MainViewController]
+  }
+
+  it should "instantiate a controller with 0 parameters" in {
+    val ctrl = resolver.getController(classOf[DummyClass])
+    ctrl shouldBe a [DummyClass]
+  }
+  it should "throw an exception if it doesn't know the dependents of a controller" in {
+    an [IllegalArgumentException] shouldBe thrownBy(resolver.getController(classOf[DummyController]))
+  }
+}
+
+object DependencyResolverSuite {
+    class DummyClass() {}
+
+    class DummyController(x:FilePeerTestSuite) {}
 }
