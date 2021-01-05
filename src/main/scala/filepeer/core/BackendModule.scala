@@ -8,10 +8,11 @@ import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
 import filepeer.core.transfer.{Client, FileReceiver, TransferServer}
 import pureconfig.ConfigSource
 
-class BackendModule(discoverySubscriber: DiscoveryObserver, receiverSubscriber: FileSavedObserver)(implicit env: Env) {
+class BackendModule(discoverySubscriber: DiscoveryObserver,
+                    receiverSubscriber: FileSavedObserver)(implicit env: Env,
+                                                           val system: ActorSystem = ActorSystem("file-peer")) {
     TransferServer.createTargetDir(env.transfer)
 
-    implicit val system = ActorSystem("file-peer")
     implicit val mat = Materializer.matFromSystem
     scala.sys.addShutdownHook {
       system.terminate()
