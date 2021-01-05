@@ -20,7 +20,7 @@
 }
 
 .drag-drop-pane {
-
+  -fx-background-color: lightgrey;
 }
 
 .drag-drop-pane--active {
@@ -28,4 +28,8 @@
   -fx-border-color: red;
   -fx-background-color: white;
   -fx-font-weight: bold;
+}
+
+.drag-drop-progressbar {
+  -fx-background-color: white;
 }

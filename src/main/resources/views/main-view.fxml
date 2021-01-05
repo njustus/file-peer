@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.MainViewController" stylesheets="style.css">
+<VBox prefHeight="400.0" prefWidth="640.0" stylesheets="style.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.MainViewController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -59,11 +57,7 @@
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                <children>
                   <fx:include fx:id="clientDetails" source="client-details.fxml" />
-                  <StackPane fx:id="dragDropPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" VBox.vgrow="ALWAYS">
-                     <children>
-                        <Label text="Drag &amp; Drop files here" />
-                     </children>
-                  </StackPane>
+                  <fx:include fx:id="fileSending" source="filedrop-pane.fxml" />
                </children>
             </VBox>
          </center>
