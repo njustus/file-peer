@@ -21,16 +21,16 @@ import scala.util.Using
 
 class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
-  val tempDir = Files.createTempDirectory("filepeer")
-  val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
-  implicit val env2: Env = env.copy(transfer = env.transfer.copy(targetDir = tempDir))
-  val localhost = env2.transfer.address
+  private val tempDir = Files.createTempDirectory("filepeer")
+  private val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
+  private implicit val env2: Env = env.copy(transfer = env.transfer.copy(targetDir = tempDir))
+  private val localhost = env2.transfer.address
 
   val DENIED_FILENAME = "denied-dummy-user.txt"
 
   private val fileWritten$ = Subject[FileReceiver.FileSaved]()
   lazy val receiver = new FileReceiver(new FileReceiver.FileSavedObserver() {
-    override def accept(file: FileReceiver.FileSaved): Boolean = file.name != DENIED_FILENAME
+    override def accept(file: FileReceiver.FileSaved): Future[Boolean] = Future.successful(file.name != DENIED_FILENAME)
 
     override def fileSaved(fs: FileReceiver.FileSaved): Unit = fileWritten$.onNext(fs)
   })
