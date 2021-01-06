@@ -8,8 +8,6 @@ import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.Await
-import org.apache.commons.lang3.SerializationUtils
-import org.scalatest._
 import java.nio.file._
 
 import cats.data.NonEmptyList
@@ -25,12 +23,16 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
   val tempDir = Files.createTempDirectory("filepeer")
   val sourceFile = better.files.File.currentWorkingDirectory / "src" / "test" / "resources" / "dummy-user"
-  implicit val env2:Env = env.copy(transfer=env.transfer.copy(targetDir=tempDir))
+  implicit val env2: Env = env.copy(transfer = env.transfer.copy(targetDir = tempDir))
   val localhost = env2.transfer.address
+
+  val DENIED_FILENAME = "denied-dummy-user.txt"
 
   private val fileWritten$ = Subject[FileReceiver.FileSaved]()
   lazy val receiver = new FileReceiver(new FileReceiver.FileSavedObserver() {
-    override def fileSaved(fs:FileReceiver.FileSaved):Unit = fileWritten$.onNext(fs)
+    override def accept(file: FileReceiver.FileSaved): Boolean = file.name != DENIED_FILENAME
+
+    override def fileSaved(fs: FileReceiver.FileSaved): Unit = fileWritten$.onNext(fs)
   })
 
   val transfer = new TransferServer(receiver)
@@ -42,20 +44,20 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
     fileWritten$.onCompleted()
   }
 
-    "Client/FileSender" should "read a file into memory" in {
+  "Client/FileSender" should "read a file into memory" in {
     sourceFile.path.toFile should exist
 
     val bsFut = Client.sourceFromPath(sourceFile.path).runWith(ProtocolSuite.bsSink)
     val bs = Await.result(bsFut, testTimeout)
 
     val expectedBytes = DummyUser.serialize(DummyUser.personInResourceFile)
-    val (start, end) = bs.splitAt(bs.length-expectedBytes.length)
+    val (start, end) = bs.splitAt(bs.length - expectedBytes.length)
 
     end shouldBe (expectedBytes)
     start.utf8String shouldBe (s"""Content-Length:${expectedBytes.length}
-         |Message-Type:Binary
-         |File-Name:${sourceFile.name}
-         |--\n""".stripMargin)
+                                  |Message-Type:Binary
+                                  |File-Name:${sourceFile.name}
+                                  |--\n""".stripMargin)
   }
 
   it should "send a file into a stream" in {
@@ -76,9 +78,9 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
     val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
     fileWritten$
-      .filter(_.name===sourceFile.name)
+      .filter(_.name === sourceFile.name)
       .first
-      .subscribe(x =>fileWrittenPromise.success(x))
+      .subscribe(x => fileWrittenPromise.success(x))
 
     val expectedFile = tempDir.resolve(sourceFile.name).toFile
     val fut = sender.sendFile(localhost, NonEmptyList.of(sourceFile.path))
@@ -121,5 +123,19 @@ class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
       fileWritten.name shouldBe (source.name)
       Files.size(fileWritten.path) shouldBe (source.size)
     }(rsc => rsc.delete())
+  }
+
+  it should "deny files that aren't accepted by the provided FileObserver" in {
+    val source = better.files.File(tempDir) / DENIED_FILENAME
+    source.writeText("a test text")
+
+    val fileWrittenPromise = Promise[FileReceiver.FileSaved]()
+    fileWritten$
+      .filter(_.name === source.name)
+      .subscribe(x => fileWrittenPromise.success(x))
+
+    val fut = sender.sendFile(localhost, NonEmptyList.of(source.path))
+    Await.ready(fut, testTimeout)
+    an [TimeoutException] shouldBe thrownBy(Await.result(fileWrittenPromise.future, testTimeout))
   }
 }

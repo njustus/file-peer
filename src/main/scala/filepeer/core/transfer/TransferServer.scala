@@ -55,7 +55,6 @@ class TransferServer(fileReceiver: FileReceiver)(implicit mat: Materializer, env
   }
 
   private def binaryMessageHandler(binaryMsg:ProtocolMessage) = {
-    //TODO only accept files after user confirmation
     binaryMsg.header.get(TransferServer.FILENAME_HEADER) match {
       case Some(fileName) =>
         logger.info(s"got a FileTransfer for fileName:$fileName")

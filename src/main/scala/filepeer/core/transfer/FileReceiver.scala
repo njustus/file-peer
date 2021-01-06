@@ -30,13 +30,19 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
   private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
 
   def fileWriter: Flow[FileTransfer, IOResult, NotUsed] = {
-    Flow[FileTransfer].map { case FileTransfer(fileName, content) =>
+    Flow[FileTransfer]
+      .map { case FileTransfer(fileName, content) =>
       val path = this.targetPath(fileName)
-      logger.info(s"saving $fileName at $path")
       val bs = ByteString(content)
       (FileReceiver.FileSaved(fileName, path), bs)
     }
+      .filter { case (fs, _) =>
+        val accepted = observer.accept(fs)
+        logger.debug(s"${if(accepted) "Accepted" else "Denied"} FileTransfer for: ${fs.name}")
+        accepted
+      }
       .mapAsyncUnordered(2) { case (fileSaved, bs) =>
+        logger.info(s"saving ${fileSaved.name} at ${fileSaved.path}")
         Source.single(bs).runWith(FileIO.toPath(fileSaved.path)).map { x =>
           observer.fileSaved(fileSaved)
           x
@@ -60,6 +66,7 @@ object FileReceiver {
   case class FileSaved(name:String, path:Path)
 
   trait FileSavedObserver {
+    def accept(file:FileSaved): Boolean = true
     def fileSaved(file:FileSaved): Unit
   }
 }
