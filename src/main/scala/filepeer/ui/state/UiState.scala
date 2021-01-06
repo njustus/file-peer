@@ -3,8 +3,12 @@ package filepeer.ui.state
 import filepeer.core.Env
 import filepeer.core.discovery.DiscoveryService
 import filepeer.core.transfer.FileReceiver
+import filepeer.ui.components.TransferConfirmationDialog
 import filepeer.ui.state.actions._
+import javafx.application.Platform
 import rx.lang.scala.Observable
+
+import scala.concurrent.{Future, Promise}
 
 class UiState(val env:Env) {
 
@@ -19,6 +23,17 @@ class UiState(val env:Env) {
   }
 
   val fileSavedSubscriber: FileReceiver.FileSavedObserver = new FileReceiver.FileSavedObserver {
+    override def accept(file: FileReceiver.FileSaved): Future[Boolean] = {
+      // the accept() method is called from within an Akka Flow,
+      // but the confirmation dialog must run in the JFX thread
+      val acceptPromise = Promise[Boolean]()
+      Platform.runLater { () =>
+        val accepted = TransferConfirmationDialog.displayDialog(file)
+        acceptPromise.success(accepted)
+      }
+      acceptPromise.future
+    }
+
     override def fileSaved(file: FileReceiver.FileSaved): Unit = dispatchAction(FileSavedAction(file))
   }
 
