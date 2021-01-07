@@ -30,9 +30,3 @@ class FilePeerUi extends Application {
   }
 
 }
-
-object FilePeerUi {
-  def main(args: Array[String]): Unit = {
-    Application.launch(classOf[FilePeerUi], args:_*)
-  }
-}

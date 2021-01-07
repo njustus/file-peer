@@ -6,7 +6,7 @@ plugins {
 }
 
 application {
-  mainClass = "filepeer.ui.FilePeerUi"
+  mainClass = "filepeer.ui.FilePeerMain"
 }
 
 javafx {
@@ -14,10 +14,9 @@ javafx {
   modules = [
     'javafx.controls',
     'javafx.fxml',
-    'javafx.graphics'
+    // 'javafx.graphics'
   ]
 }
-
 
 tasks.withType(ScalaCompile) {
   scalaCompileOptions.additionalParameters = [
@@ -52,7 +51,7 @@ dependencies {
   implementation "com.github.pureconfig:pureconfig_${scalaVersion}:0.14.0"
   implementation "org.typelevel:cats-core_${scalaVersion}:2.2.0"
   implementation "com.github.pathikrit:better-files_${scalaVersion}:3.9.1"
-  implementation "io.scalaland:chimney_${scalaVersion}:0.6.1"
+//  implementation "io.scalaland:chimney_${scalaVersion}:0.6.1"
   implementation "ch.qos.logback:logback-classic:1.2.3"
   implementation "com.typesafe.scala-logging:scala-logging_${scalaVersion}:3.9.2"
   implementation "io.reactivex:rxscala_${scalaVersion}:0.27.0"
