@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.stream.Materializer
 import filepeer.FilePeerTestSuite
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 abstract class ActorTestSuite extends FilePeerTestSuite {
@@ -12,7 +13,8 @@ abstract class ActorTestSuite extends FilePeerTestSuite {
   implicit val exec = system.dispatcher
 
   implicit val testTimeout = 20 seconds
+
   override def afterAll() = {
-    system.terminate()
+    Await.ready(system.terminate(), 1 minute)
   }
 }

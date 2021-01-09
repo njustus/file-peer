@@ -14,6 +14,7 @@ class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   private val discoveryObserver = new DiscoveryObserver {
     override def newClient(client: DiscoveryService.ClientName, allClients: Set[DiscoveryService.ClientName]): Unit = logger.warn(s"unhandled new client message received: $client")
   }
+
   private val fileObserver = new FileSavedObserver {
     override def fileSaved(file: FileReceiver.FileSaved): Unit = logger.warn(s"unhandled file saved message received: $file")
   }
