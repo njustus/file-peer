@@ -5,7 +5,9 @@ import java.nio.file.Path
 case class Env(
   discovery: DiscoveryEnv,
   transfer: TransferEnv
-)
+) {
+  def downloadDir: Path = transfer.targetDir
+}
 
 case class DiscoveryEnv(
   address: Address,

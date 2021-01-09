@@ -27,7 +27,6 @@ import scala.concurrent.Future
 
 
 class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env) extends LazyLogging {
-  private val transferEnv = env.transfer
 
   private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
 
@@ -55,11 +54,11 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
 
   private def targetPath(fileName: String): Path = {
     val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    val targetFile = transferEnv.targetDir.resolve(fileName)
+    val targetFile = env.downloadDir.resolve(fileName)
     if(!Files.exists(targetFile)) {
       targetFile
     } else {
-      transferEnv.targetDir.resolve(timestamp+"-"+fileName)
+      env.downloadDir.resolve(timestamp+"-"+fileName)
     }
   }
 

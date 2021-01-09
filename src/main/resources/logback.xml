@@ -15,6 +15,7 @@
    <logger name="com.typesafe" level="INFO"></logger>
    <logger name="io.netty" level="INFO"></logger>
   <logger name="akka" level="INFO"></logger>
+  <logger name="filepeer.core.discovery" level="WARN"></logger>
 <!--  <logger name="akka.stream" level="DEBUG"></logger>-->
 
    <root level="DEBUG">
