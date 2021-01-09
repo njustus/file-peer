@@ -1,29 +1,27 @@
-package filepeer.ui
+package filepeer.ui.transfer
 
 import java.awt.Desktop
-import java.net.URL
 import java.nio.file.Files
-import java.util.ResourceBundle
 
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.Env
 import filepeer.core.transfer.FileReceiver
 import javafx.application.Platform
+import javafx.event.ActionEvent
+import javafx.stage.Window
 import javafx.util.Duration
 import org.controlsfx.control.Notifications
 import org.controlsfx.control.action.Action
 
 import scala.concurrent.{ExecutionContext, Future, blocking}
-import javafx.event.ActionEvent
-import javafx.stage.Window
 
-trait FileSavedNotificator {
+private[transfer] trait FileSavedNotificator {
   self: LazyLogging =>
 
   protected def notifyFileSaved(fileSaved: FileReceiver.FileSaved): Unit = {
     logger.info(s"File received: $fileSaved")
-    val openDownloadDirectoryAction = new Action("Open Directory", (_:ActionEvent) => this.openDownloadDirectory())
-    val openFileAction = new Action("Open File", (_:ActionEvent) => this.openFile(fileSaved))
+    val openDownloadDirectoryAction = new Action("Open Directory", (_: ActionEvent) => this.openDownloadDirectory())
+    val openFileAction = new Action("Open File", (_: ActionEvent) => this.openFile(fileSaved))
 
     val size = Files.size(fileSaved.path).toDouble / 1024 //TODO use message header instead of recalculation
 
@@ -47,7 +45,7 @@ trait FileSavedNotificator {
   }
 
   private def withDesktop[A](fn: Desktop => A): Future[A] = {
-    if(Desktop.isDesktopSupported) {
+    if (Desktop.isDesktopSupported) {
       //must run in separate thread to not block the whole application
       Future {
         blocking {
@@ -60,6 +58,8 @@ trait FileSavedNotificator {
   }
 
   protected def env: Env
+
   protected def currentWindow: Window
+
   protected implicit def blockingExecutor: ExecutionContext
 }

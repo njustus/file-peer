@@ -1,13 +1,14 @@
-package filepeer.ui
+package filepeer.ui.bootstrap
 
 import filepeer.core.{BackendModule, Env}
+import filepeer.ui.DependencyResolver
 import filepeer.ui.state.UiState
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 import pureconfig.ConfigSource
 
-class FilePeerUi extends Application {
+private[bootstrap] class FilePeerUi extends Application {
   override def start(primaryStage:Stage):Unit = {
     import pureconfig.generic.auto._
     implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]

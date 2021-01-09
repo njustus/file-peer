@@ -1,8 +1,6 @@
-package filepeer.ui
+package filepeer.ui.transfer
 
-import java.awt.Desktop
 import java.net.URL
-import java.nio.file.Files
 import java.util.ResourceBundle
 
 import cats.data.NonEmptyList
@@ -15,9 +13,7 @@ import javafx.application.Platform
 import javafx.fxml.{FXML, Initializable}
 import javafx.scene.control.Label
 import javafx.scene.input.{DragEvent, TransferMode}
-import javafx.scene.layout.HBox
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.{HBox, StackPane, VBox}
 import javafx.stage.Window
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
@@ -31,8 +27,8 @@ class FileSendingController(override val env:Env,
     with Initializable
     with UiStateController  {
 
-  import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
+  import scala.language.implicitConversions
 
 
   @FXML var stackPane: StackPane = null

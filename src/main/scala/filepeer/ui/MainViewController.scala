@@ -9,14 +9,11 @@ import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
-import cats.data.NonEmptyList
-import filepeer.core.transfer.Client
 import filepeer.ui.components.ComponentFactory
 import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.state.actions.UpdateCurrentClient
-import javafx.scene.layout.StackPane
+import filepeer.ui.transfer.FileSendingController
 import javafx.scene.control.SelectionMode
-import javafx.scene.input.{DragEvent, TransferMode}
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 

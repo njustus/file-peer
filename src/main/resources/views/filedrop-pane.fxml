@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="stackPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.FileSendingController">
+<StackPane fx:id="stackPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.transfer.FileSendingController">
    <children>
       <HBox fx:id="dragDropPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="drag-drop-pane">
          <children>

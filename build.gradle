@@ -7,7 +7,7 @@ plugins {
 }
 
 application {
-  mainClass = "filepeer.ui.FilePeerMain"
+  mainClass = "filepeer.ui.bootstrap.FilePeerMain"
 }
 
 javafx {
