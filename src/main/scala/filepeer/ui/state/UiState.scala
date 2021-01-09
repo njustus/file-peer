@@ -39,6 +39,7 @@ class UiState(val env:Env) {
 
   def availableServers$: Observable[List[DiscoveryService.ClientName]] = state.state$.map(_.availableClients).distinctUntilChanged
   def currentClient$: Observable[DiscoveryService.ClientName] = state.state$.map(_.currentClient).collect { case Some(client) => client}.distinctUntilChanged
+  def filSaved$: Observable[FileReceiver.FileSaved] = state.state$.map(_.fileSaved).collect  { case Some(fs) => fs }.distinctUntilChanged
 
   def dispatchAction: StateAction => Unit = state.dispatchAction
 }
