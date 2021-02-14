@@ -43,9 +43,11 @@ dependencies {
   def scalaVersion = "2.13"
   def circeVersion = "0.12.3"
   def akkaVersion = "2.6.10"
+  def akkaHttpVersion = "10.2.3"
 
   implementation "org.scala-lang:scala-library:${scalaVersion}.4"
 
+  implementation "com.typesafe.akka:akka-http_${scalaVersion}:${akkaHttpVersion}"
   implementation "com.typesafe.akka:akka-stream_${scalaVersion}:${akkaVersion}"
   implementation "com.typesafe.akka:akka-slf4j_${scalaVersion}:${akkaVersion}"
 

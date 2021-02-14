@@ -12,6 +12,7 @@ import java.nio.file._
 
 import cats.data.NonEmptyList
 import filepeer.core.Env
+import org.scalatest.Ignore
 import org.scalatest.concurrent._
 import rx.lang.scala.Subject
 
@@ -19,6 +20,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Using
 
+@Ignore
 class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {
 
   private val tempDir = Files.createTempDirectory("filepeer")
