@@ -8,10 +8,12 @@ import java.time.format.DateTimeFormatter
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.dispatch.{Dispatchers, MessageDispatcher}
+import akka.http.scaladsl.server.directives.FileInfo
 import akka.stream.{IOResult, Materializer}
 import akka.stream.scaladsl._
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
+import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
 import filepeer.core.{Env, TransferEnv}
 import filepeer.core.transfer.TransferServer.{FileTransfer, TransferMsg, TransferPreview}
 import io.circe._
@@ -24,9 +26,15 @@ import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
 import scala.concurrent.Future
+import scala.language.implicitConversions
 
+class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env)
+  extends LazyLogging {
 
-class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env) extends LazyLogging {
+  private implicit def fileInfoToFileSaved(fi:FileInfo): FileSaved = {
+    val fileName = fi.getFileName
+    FileSaved(fileName, targetPath(fileName))
+  }
 
   private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
 
@@ -52,7 +60,13 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
       }
   }
 
-  private def targetPath(fileName: String): Path = {
+  private def fileWriter(fi: FileInfo): Sink[ByteString, Future[IOResult]] = {
+    val path = targetPath(fi.fileName)
+    logger.debug(s"saving ${fi.getFieldName} at $path")
+    FileIO.toPath(path)
+  }
+
+  def targetPath(fileName: String): Path = {
     val timestamp = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     val targetFile = env.downloadDir.resolve(fileName)
     if(!Files.exists(targetFile)) {
@@ -62,6 +76,17 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
     }
   }
 
+  def accept(fi: FileInfo): Future[Boolean] = {
+    observer.accept(fi)
+  }
+
+  def fileHandler(fi: FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult] = {
+    content.runWith[Future[IOResult]](fileWriter(fi))
+  }
+
+  private def notify(fi:FileSaved): Unit = {
+    observer.fileSaved(fi)
+  }
 }
 
 object FileReceiver {

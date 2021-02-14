@@ -20,7 +20,7 @@ class BackendModule(discoverySubscriber: DiscoveryObserver,
 
 
   val fileReceiver = new FileReceiver(receiverSubscriber)
-  val http = new HttpReceiver(receiverSubscriber)
+  val http = new HttpReceiver(fileReceiver)
 //  val discoveryService = new DiscoveryService(discoverySubscriber)
 //  val transferServer = new TransferServer(fileReceiver)
   val fileSender = new Client()
