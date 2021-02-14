@@ -19,6 +19,8 @@ private[bootstrap] class FilePeerUi extends Application {
     val (mainView, controller) = resolver.componentFactory.newRootComponent
     val subscriptions = controller.connectUiState(state)
 
+    backend.http.bind(env.transfer.address)
+
     val scene = new Scene(mainView, 600, 400)
     primaryStage.setScene(scene)
 
