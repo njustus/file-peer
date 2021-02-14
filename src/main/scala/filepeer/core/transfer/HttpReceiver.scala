@@ -3,8 +3,8 @@ package filepeer.core.transfer
 import java.nio.file.Path
 
 import akka.NotUsed
-import akka.http.javadsl.server.directives.FileInfo
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.directives.FileInfo
 import akka.stream.{IOResult, Materializer}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
@@ -14,23 +14,19 @@ import filepeer.core.{Address, Env}
 
 import scala.concurrent.Future
 
-class HttpReceiver(fileAcceptor: FileSavedObserver)(implicit mat: Materializer, env: Env)
+class HttpReceiver(fileReceiver: FileReceiver)(implicit mat: Materializer, env: Env)
   extends HttpEndpoints
     with LazyLogging {
 
   private implicit val sys = mat.system
   private implicit val context = mat.executionContext
 
-  private def generateFilePath(fileName: String): Path = env.downloadDir.resolve(fileName)
-
   override def accept(fi: FileInfo): Future[Boolean] = {
-    val fileName = fi.getFileName
-    fileAcceptor.accept(FileSaved(fileName, generateFilePath(fileName)))
-  } //TODO actual impl
+    fileReceiver.accept(fi)
+  }
 
   override def fileHandler(fi: FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult] = {
-    val fileName = fi.getFileName
-    content.runWith[Future[IOResult]](FileIO.toPath(generateFilePath(fileName)))
+    fileReceiver.fileHandler(fi, content)
   }
 
   def bind(address: Address): Future[Http.ServerBinding] = {

@@ -1,9 +1,9 @@
 package filepeer.core.transfer
 
 import akka.NotUsed
-import akka.http.javadsl.server.directives.FileInfo
 import com.typesafe.scalalogging.LazyLogging
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.IOResult
 import akka.stream.scaladsl.Source
@@ -15,8 +15,8 @@ trait HttpEndpoints
   extends Directives {
   this: LazyLogging =>
 
-  def accept(fi:FileInfo): Future[Boolean]
-  def fileHandler(fi:FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult]
+  def accept(fi: FileInfo): Future[Boolean]
+  def fileHandler(fi: FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult]
 
   private def innerRoutes: Route = path("upload") {
     extractExecutionContext { implicit exec =>
