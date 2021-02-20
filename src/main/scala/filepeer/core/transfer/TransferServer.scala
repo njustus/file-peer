@@ -22,6 +22,7 @@ import scala.util.{Failure, Success}
 import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 import scala.concurrent.duration._
 
+@deprecated(message = "use 'HttpReceiver' instead.", since = "v2")
 class TransferServer(fileReceiver: FileReceiver)(implicit mat: Materializer, env: Env) extends LazyLogging with JsonFormats {
   private val transferEnv = env.transfer
 
