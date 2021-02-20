@@ -81,7 +81,10 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
   }
 
   def fileHandler(fi: FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult] = {
-    content.runWith[Future[IOResult]](fileWriter(fi))
+    content.runWith[Future[IOResult]](fileWriter(fi)).map {x =>
+      notify(fi)
+      x
+    }
   }
 
   private def notify(fi:FileSaved): Unit = {
