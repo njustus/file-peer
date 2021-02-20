@@ -31,11 +31,6 @@ import scala.language.implicitConversions
 class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materializer, env: Env)
   extends LazyLogging {
 
-  private implicit def fileInfoToFileSaved(fi:FileInfo): FileSaved = {
-    val fileName = fi.getFileName
-    FileSaved(fileName, targetPath(fileName))
-  }
-
   private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
 
   def fileWriter: Flow[FileTransfer, IOResult, NotUsed] = {
@@ -77,12 +72,14 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
   }
 
   def accept(fi: FileInfo): Future[Boolean] = {
-    observer.accept(fi)
+      val fileName = fi.getFileName
+    observer.accept(FileSaved(fileName, targetPath(fileName), None))
   }
 
   def fileHandler(fi: FileInfo, content: Source[ByteString, NotUsed]): Future[IOResult] = {
-    content.runWith[Future[IOResult]](fileWriter(fi)).map {x =>
-      notify(fi)
+    content.runWith[Future[IOResult]](fileWriter(fi)).map { x =>
+      val fileName = fi.getFileName
+      notify(FileSaved(fileName, targetPath(fileName), Some(x.count)))
       x
     }
   }
@@ -93,7 +90,7 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
 }
 
 object FileReceiver {
-  case class FileSaved(name:String, path:Path)
+  case class FileSaved(name:String, path:Path, size: Option[Long] = None)
 
   trait FileSavedObserver {
     def accept(file:FileSaved): Future[Boolean] = Future.successful(true)
