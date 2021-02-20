@@ -22,4 +22,6 @@ case class TransferEnv(
 case class Address(
   host: String,
   port: Int
-)
+) {
+  def uriString: String = s"http://$host:$port/"
+}

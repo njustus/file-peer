@@ -7,7 +7,7 @@ import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.Env
 import filepeer.core.discovery.DiscoveryService.ClientName
-import filepeer.core.transfer.Client
+import filepeer.core.transfer.{Client, HttpClient}
 import filepeer.ui.state.{UiState, UiStateController}
 import javafx.application.Platform
 import javafx.fxml.{FXML, Initializable}
@@ -19,9 +19,10 @@ import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 class FileSendingController(override val env:Env,
-                            fileSender: Client)
+                            fileSender: HttpClient)
   extends FileSavedNotificator
     with LazyLogging
     with Initializable
@@ -69,10 +70,14 @@ class FileSendingController(override val env:Env,
         val paths = files.map(_.toPath)
         fileSender
           .sendFile(address, paths)
-          .foreach { _ =>
+          .onComplete {
+            case Failure(exception) =>
+              logger.error(s"upload for file: ${paths.head} failed.", exception)
+            case Success(_) =>
             logger.info(s"$files send to $address")
             Platform.runLater(() => dragDropPane.toFront())
-          } //TODO notify UI
+              //TODO notify ui
+          }
     }
 
     opt.getOrElse(logger.warn("Ignoring dropped empty file list!"))
