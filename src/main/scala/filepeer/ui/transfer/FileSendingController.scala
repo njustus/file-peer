@@ -73,10 +73,14 @@ class FileSendingController(override val env:Env,
           .onComplete {
             case Failure(exception) =>
               logger.error(s"upload for file: ${paths.head} failed.", exception)
-            case Success(_) =>
-            logger.info(s"$files send to $address")
-            Platform.runLater(() => dragDropPane.toFront())
+            case Success(r:Client.Rejected) =>
+              logger.warn("upload rejected.\n"+r.reason)
+              Platform.runLater(() => dragDropPane.toFront())
+            case Success(Client.Done) =>
+              logger.info(s"$files send to $address")
+              Platform.runLater(() => dragDropPane.toFront())
               //TODO notify ui
+            case x => logger.error("ouh no! what happened?", x)
           }
     }
 

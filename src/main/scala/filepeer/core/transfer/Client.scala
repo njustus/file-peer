@@ -46,6 +46,13 @@ object Client {
     def size:Long = Files.size(path)
   }
 
+  sealed trait UploadResult
+  case object Done extends UploadResult
+  case class Rejected(sourceFile:Path, server: Address) extends UploadResult {
+    def reason: String = s"${sourceFile.getFileName} was rejected by ${server.format}."
+  }
+  case class Error(reason: String) extends RuntimeException(reason) with UploadResult
+
   def source(fileContainer:FileContainer): Source[ByteString, Future[IOResult]] = {
     val fileHeader = TransferServer.FILENAME_HEADER -> fileContainer.fileName
     ProtocolHandlers.binaryMessageFromSource(fileContainer.bytes, fileContainer.size,Seq(fileHeader))
