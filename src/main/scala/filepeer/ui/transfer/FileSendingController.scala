@@ -8,6 +8,7 @@ import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.Env
 import filepeer.core.discovery.DiscoveryService.ClientName
 import filepeer.core.transfer.{Client, HttpClient}
+import filepeer.ui.components.NotificationDialog
 import filepeer.ui.state.{UiState, UiStateController}
 import javafx.application.Platform
 import javafx.fxml.{FXML, Initializable}
@@ -78,8 +79,10 @@ class FileSendingController(override val env:Env,
               Platform.runLater(() => dragDropPane.toFront())
             case Success(Client.Done) =>
               logger.info(s"$files send to $address")
-              Platform.runLater(() => dragDropPane.toFront())
-              //TODO notify ui
+              Platform.runLater {() =>
+                dragDropPane.toFront()
+                NotificationDialog.notifyAndWait(s"""Uploaded $files""")
+              }
             case x => logger.error("ouh no! what happened?", x)
           }
     }
