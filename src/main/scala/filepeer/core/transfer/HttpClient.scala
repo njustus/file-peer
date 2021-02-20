@@ -5,8 +5,8 @@ import java.nio.file.{Files, Path}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshalling.Marshal
 import akka.http.scaladsl.model._
-import akka.stream.scaladsl.{FileIO, Source}
-import akka.stream.{IOResult, Materializer}
+import akka.stream.scaladsl.FileIO
+import akka.stream.Materializer
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.{Address, Env}

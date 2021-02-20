@@ -9,7 +9,6 @@ import akka.stream.{IOResult, Materializer}
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
-import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
 import filepeer.core.{Address, Env}
 
 import scala.concurrent.Future
