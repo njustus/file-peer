@@ -26,3 +26,4 @@ case class Address(
   def uriString: String = s"http://$host:$port/"
   def format: String = s"$host:$port"
 }
+
