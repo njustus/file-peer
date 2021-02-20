@@ -5,7 +5,7 @@ import filepeer.FilePeerTestSuite
 import filepeer.core.{ActorTestSuite, BackendModule, Env}
 import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
-import filepeer.core.transfer.{Client, FileReceiver}
+import filepeer.core.transfer.{Client, FileReceiver, HttpClient}
 import filepeer.core.transfer.FileReceiver.FileSavedObserver
 import filepeer.ui.DependencyResolverSuite.{DummyClass, DummyController}
 import filepeer.ui.state.UiState
@@ -23,8 +23,8 @@ class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   val resolver = new DependencyResolver(UiState(), backendModule)
 
   "The 'DependencyResolver'" should "resolve a service by its class symbol" in {
-    val client = resolver.getBean(classOf[Client])
-    client shouldBe a [Client]
+    val client = resolver.getBean(classOf[HttpClient])
+    client shouldBe a [HttpClient]
   }
   it should "resolve the env configuration" in {
     val resolvedEnv = resolver.getBean(classOf[Env])

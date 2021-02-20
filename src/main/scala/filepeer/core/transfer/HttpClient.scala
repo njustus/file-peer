@@ -20,7 +20,6 @@ class HttpClient()(implicit mat: Materializer, env: Env) extends LazyLogging {
 
   def sendFile(address:Address, files:NonEmptyList[Path]): Future[Client.UploadResult] = {
     val file = files.head
-    val entity = Http
 
     for {
       entity <- createEntity(file)
@@ -40,10 +39,11 @@ class HttpClient()(implicit mat: Materializer, env: Env) extends LazyLogging {
 
 
   private def createEntity(file: Path): Future[RequestEntity] = {
+    val entity = HttpEntity(MediaTypes.`application/octet-stream`, Files.size(file), FileIO.fromPath(file))
     val formData = Multipart.FormData(
           Multipart.FormData.BodyPart(
             "file",
-            HttpEntity(MediaTypes.`application/octet-stream`, Files.size(file), FileIO.fromPath(file)), // the chunk size here is currently critical for performance
+            entity,
             Map("filename" -> file.getFileName.toString)))
     Marshal(formData).to[RequestEntity]
   }
