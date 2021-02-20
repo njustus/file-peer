@@ -5,7 +5,7 @@ import filepeer.FilePeerTestSuite
 import filepeer.core.{ActorTestSuite, BackendModule, Env}
 import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
-import filepeer.core.transfer.{Client, FileReceiver, HttpClient}
+import filepeer.core.transfer.{FileReceiver, HttpClient}
 import filepeer.core.transfer.FileReceiver.FileSavedObserver
 import filepeer.ui.DependencyResolverSuite.{DummyClass, DummyController}
 import filepeer.ui.state.UiState

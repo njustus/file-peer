@@ -11,7 +11,7 @@ import pureconfig.ConfigSource
 private[bootstrap] class FilePeerUi extends Application {
   override def start(primaryStage:Stage):Unit = {
     import pureconfig.generic.auto._
-    implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
+    implicit val env: Env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
     val state = new UiState(env)
     val backend = new BackendModule(state.discoverySubscriber, state.fileSavedSubscriber)
     val resolver = new DependencyResolver(state, backend)
@@ -29,7 +29,7 @@ private[bootstrap] class FilePeerUi extends Application {
       backend.system.terminate()
       subscriptions.unsubscribe()
     })
-    primaryStage.show();
+    primaryStage.show()
   }
 
 }
