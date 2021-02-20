@@ -18,7 +18,7 @@ class HttpClient()(implicit mat: Materializer, env: Env) extends LazyLogging {
 
   private val http = Http(mat.system)
 
-  def sendFile(address:Address, files:NonEmptyList[Path]): Future[IOResult] = {
+  def sendFile(address:Address, files:NonEmptyList[Path]): Future[Client.UploadResult] = {
     val file = files.head
     val entity = Http
 
@@ -30,8 +30,11 @@ class HttpClient()(implicit mat: Materializer, env: Env) extends LazyLogging {
       _ = logger.info(s"sending $request")
       response <- http.singleRequest(request)
     } yield {
-      if(response.status.isSuccess()) IOResult(0)
-      else throw new RuntimeException(s"upload for $file failed with: ${response.status}")
+      response.status match {
+        case StatusCodes.Forbidden => Client.Rejected(file, address)
+        case _ if response.status.isSuccess() => Client.Done
+        case _ => throw Client.Error("Error uploading: $file.\n"+response.status.reason)
+      }
     }
   }
 
