@@ -15,6 +15,7 @@ import filepeer.core.{Address, Env}
 
 import scala.concurrent.Future
 
+@deprecated(message = "use 'HttpClient' instead", since = "v2")
 class Client()(implicit mat: Materializer, env: Env) extends LazyLogging {
 
   def sendFile(address:Address, files:NonEmptyList[Path]): Future[IOResult] = {
