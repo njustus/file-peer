@@ -10,12 +10,13 @@ import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.stage.Window
 import javafx.util.Duration
-import org.controlsfx.control.Notifications
 import org.controlsfx.control.action.Action
 
 import scala.concurrent.{ExecutionContext, Future, blocking}
 
-private[transfer] trait FileSavedNotificator {
+import filepeer.ui.components.Notifications
+
+private[transfer] trait FileSavedNotificator extends Notifications {
   self: LazyLogging =>
 
   protected def notifyFileSaved(fileSaved: FileReceiver.FileSaved): Unit = {
@@ -31,13 +32,7 @@ private[transfer] trait FileSavedNotificator {
     val sizeString = s"($kbStr KB)"
 
     Platform.runLater { () =>
-      Notifications.create()
-        .owner(currentWindow)
-        .title("File received.")
-        .hideAfter(Duration.seconds(5))
-        .action(openFileAction, openDownloadDirectoryAction)
-        .text(f"Received: ${fileSaved.name} $sizeString")
-        .showInformation()
+      notify(s"Received: ${fileSaved.name} $sizeString", "File received.")
     }
   }
 
@@ -63,8 +58,6 @@ private[transfer] trait FileSavedNotificator {
   }
 
   protected def env: Env
-
-  protected def currentWindow: Window
 
   protected implicit def blockingExecutor: ExecutionContext
 }

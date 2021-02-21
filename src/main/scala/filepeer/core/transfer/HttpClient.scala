@@ -32,7 +32,7 @@ class HttpClient()(implicit mat: Materializer, env: Env) extends LazyLogging {
       response.status match {
         case StatusCodes.Forbidden => Client.Rejected(file, address)
         case _ if response.status.isSuccess() => Client.Done
-        case _ => throw Client.Error("Error uploading: $file.\n"+response.status.reason)
+        case _ => throw Client.Error(s"Error uploading: $file.\n"+response.status.reason)
       }
     }
   }
