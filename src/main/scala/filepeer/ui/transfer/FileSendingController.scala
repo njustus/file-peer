@@ -25,7 +25,7 @@ import scala.util.{Failure, Success}
 
 class FileSendingController(override val env:Env,
                             fileSender: HttpClient)
-  extends FileSavedNotificator
+    extends FileSavedNotificator
     with LazyLogging
     with Initializable
     with UiStateController  {
@@ -82,12 +82,7 @@ class FileSendingController(override val env:Env,
               logger.info(s"$files send to $address")
               Platform.runLater { () =>
                 dragDropPane.toFront()
-                Notifications.create()
-                  .owner(currentWindow)
-                  .title("File sent.")
-                  .hideAfter(Duration.seconds(5))
-                  .text(s"""Uploaded $files""")
-                  .showInformation()
+                notify(s"""Uploaded $files""", "File sent.")
               }
             case x => logger.error("ouh no! what happened?", x)
           }
