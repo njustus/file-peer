@@ -32,7 +32,9 @@ class ClientDetailsController() extends LazyLogging with Initializable with UiSt
   override def connectUiState(state: UiState): Subscription = state.currentClient$.subscribe(update _)
 
   private def update(clientName: DiscoveryService.ClientName): Unit = {
-    serverNameLbl.setText(clientName.hostName)
+    var localhost = if(clientName.isLocalhost) " (it's you)" else ""
+
+    serverNameLbl.setText(clientName.hostName+localhost)
     ipLbl.setText(clientName.ip+":"+clientName.port)
     //TODO update stats labels
   }

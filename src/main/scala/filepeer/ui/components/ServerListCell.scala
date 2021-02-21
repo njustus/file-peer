@@ -24,6 +24,10 @@ private[components] class ServerListCell() extends ListCell[DiscoveryService.Cli
       nameLbl.setText(clientName.hostName)
       addressLbl.setText(clientName.ip)
 
+      if(clientName.isLocalhost) {
+        this.getStyleClass().add("serverlist-cell--localhost")
+      }
+
       setGraphic(rootNode)
     }
   }

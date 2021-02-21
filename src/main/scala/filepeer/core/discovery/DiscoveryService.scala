@@ -26,7 +26,11 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 
 object DiscoveryService {
   case class ClientName(hostName: String, ip: String, port: Int) {
+
+    def isLocalhost: Boolean = hostName == DiscoverySendingActor.hostSystem
+
     def address: Address = Address(ip, port)
+
     override def equals(obj: Any): Boolean = obj match {
       case ClientName(_, ip, port) => this.ip == ip
       case _ => false
