@@ -2,6 +2,10 @@
 
 }
 
+.serverlist-cell--localhost {
+  -fx-color: lightgrey;
+}
+
 .serverlist-cell-name {
   -fx-font-weight: bold;
   /* -fx-font-size: 12pt; */
