@@ -1,13 +1,9 @@
 package filepeer.core.discovery
 
-import akka.actor.{Actor, ActorLogging, ActorSystem, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import filepeer.core.{Address, DiscoveryEnv, Env, discovery}
 
 import scala.collection.mutable
-
-class DiscoveryService(subscriber:DiscoveryService.DiscoveryObserver)(implicit actorSystem: ActorSystem, env: Env) {
-  private val discoveryManager = actorSystem.actorOf(Props(classOf[DiscoveryManager], subscriber, env), "discovery-manager")
-}
 
 private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, env: Env) extends Actor with ActorLogging {
 
@@ -39,5 +35,9 @@ object DiscoveryService {
 
   trait DiscoveryObserver {
     def newClient(client:ClientName, allClients:Set[ClientName]): Unit
+  }
+
+  private[core] def create(subscriber:DiscoveryService.DiscoveryObserver)(implicit actorSystem: ActorSystem, env: Env): ActorRef = {
+    actorSystem.actorOf(Props(classOf[DiscoveryManager], subscriber, env), "discovery-manager")
   }
 }

@@ -12,7 +12,7 @@ import io.circe.syntax._
 
 import scala.concurrent.duration._
 
-class DiscoverySendingActor(env: filepeer.core.Env)  extends Actor with ActorLogging {
+private[discovery] class DiscoverySendingActor(env: filepeer.core.Env)  extends Actor with ActorLogging {
   import context.system
 
   val broadcastAddress = new InetSocketAddress("255.255.255.255", env.discovery.address.port)
@@ -35,7 +35,7 @@ class DiscoverySendingActor(env: filepeer.core.Env)  extends Actor with ActorLog
   }
 }
 
-object DiscoverySendingActor {
+private[discovery] object DiscoverySendingActor {
   def props(env: filepeer.core.Env): Props = Props(classOf[DiscoverySendingActor], env)
   val actorName: String = "discovery-sender"
   val hostSystem: String = InetAddress.getLocalHost.getHostName

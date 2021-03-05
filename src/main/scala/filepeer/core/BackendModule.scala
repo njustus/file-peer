@@ -18,10 +18,10 @@ class BackendModule(discoverySubscriber: DiscoveryObserver,
       system.terminate()
     }
 
+  private val discoveryServiceActor = DiscoveryService.create(discoverySubscriber)
 
   val fileReceiver = new FileReceiver(receiverSubscriber)
   val http = new HttpReceiver(fileReceiver)
-  val discoveryService = new DiscoveryService(discoverySubscriber)
 //  val transferServer = new TransferServer(fileReceiver)
   val fileSender = new HttpClient()
 }

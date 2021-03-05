@@ -12,7 +12,7 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 
-class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv) extends Actor with ActorLogging {
+private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv) extends Actor with ActorLogging {
   import context.system
 
   val listeningSocketAddress = new InetSocketAddress("0.0.0.0", discovery.address.port)
@@ -44,7 +44,7 @@ class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.Disc
   }
 }
 
-object DiscoveryListeningActor {
+private[discovery] object DiscoveryListeningActor {
   def props(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv): Props = Props(classOf[DiscoveryListeningActor], interestee, discovery)
   val actorName: String = "discovery-listener"
 
