@@ -1,6 +1,6 @@
 package filepeer
 
-import filepeer.core.Env
+import filepeer.core.{Env, PureConfigSupport}
 import org.scalatest.flatspec.AsyncFlatSpecLike
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Inspectors}
 import org.scalatest.matchers.should
@@ -12,7 +12,9 @@ trait FilePeerTestSuite
     with should.Matchers
     with Inspectors
     with BeforeAndAfterAll
-    with BeforeAndAfter {
+    with BeforeAndAfter
+    with PureConfigSupport {
+
   implicit val env: Env = {
     ConfigSource.resources("test-application.conf")
       .withFallback(ConfigSource.default)

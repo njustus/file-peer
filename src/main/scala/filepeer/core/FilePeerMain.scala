@@ -13,7 +13,7 @@ import scala.concurrent.duration.Duration
 import pureconfig._
 import pureconfig.generic.auto._
 
-object FilePeerMain {
+object FilePeerMain extends PureConfigSupport {
 
   def main(args: Array[String]): Unit = {
     implicit val env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
