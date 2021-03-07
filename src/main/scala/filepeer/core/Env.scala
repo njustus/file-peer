@@ -15,10 +15,11 @@ case class Env(
 
 case class DiscoveryEnv(
   address: Address,
+  broadcast: Address,
   includeLocalhost: Boolean
 ) {
-  def listenerAddress: InetSocketAddress = new InetSocketAddress(address.host, address.port)
-  def broadcastAddress: InetSocketAddress = new InetSocketAddress("255.255.255.255", address.port)
+  def listenerAddress: InetSocketAddress = address.inetSocketAddress
+  def broadcastAddress: InetSocketAddress = broadcast.inetSocketAddress
 }
 
 case class TransferEnv(
@@ -32,6 +33,7 @@ case class Address(
 ) {
   def uriString: String = s"http://$host:$port/"
   def format: String = s"$host:$port"
+  def inetSocketAddress: InetSocketAddress = new InetSocketAddress(host, port)
 }
 
 object Features extends Enumeration {
