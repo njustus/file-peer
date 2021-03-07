@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import filepeer.core.{Address, DiscoveryEnv, Env, discovery}
 
 import scala.collection.mutable
+import java.time.Instant
 
 private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, env: Env) extends Actor with ActorLogging {
 
@@ -21,14 +22,13 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 }
 
 object DiscoveryService {
-  case class ClientName(hostName: String, ip: String, port: Int) {
-
+  case class ClientName(hostName: String, ip: String, port: Int, discoveredAt:Instant = Instant.now) {
     def isLocalhost: Boolean = hostName == DiscoverySendingActor.hostSystem
 
     def address: Address = Address(ip, port)
 
     override def equals(obj: Any): Boolean = obj match {
-      case ClientName(_, ip, port) => this.ip == ip
+      case ClientName(_, ip, port, _) => this.ip == ip
       case _ => false
     }
   }
