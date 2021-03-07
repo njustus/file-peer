@@ -8,10 +8,7 @@ import akka.util.ByteString
 import filepeer.core.DiscoveryEnv
 import filepeer.core.discovery.DiscoveryListeningActor.ClientAddress
 import io.circe.generic.JsonCodec
-import io.circe._
-import io.circe.generic.auto._
 import io.circe.parser._
-import io.circe.syntax._
 
 private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery: DiscoveryEnv) extends Actor with ActorLogging {
   import context.system

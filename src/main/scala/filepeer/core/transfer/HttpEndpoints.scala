@@ -1,13 +1,13 @@
 package filepeer.core.transfer
 
 import akka.NotUsed
-import com.typesafe.scalalogging.LazyLogging
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.directives.FileInfo
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.stream.IOResult
 import akka.stream.scaladsl.Source
 import akka.util.ByteString
+import com.typesafe.scalalogging.LazyLogging
 
 import scala.concurrent.Future
 

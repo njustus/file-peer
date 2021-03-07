@@ -1,7 +1,7 @@
 package filepeer.core.transfer
 
-import org.apache.commons.lang3.SerializationUtils
 import io.circe.generic.JsonCodec
+import org.apache.commons.lang3.SerializationUtils
 
 @JsonCodec
 @SerialVersionUID(38L)

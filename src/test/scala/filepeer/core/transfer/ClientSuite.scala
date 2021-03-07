@@ -1,17 +1,14 @@
 package filepeer.core.transfer
 
-import filepeer.core.ActorTestSuite
-import com.typesafe.scalalogging.LazyLogging
-
-import scala.concurrent.Await
 import java.nio.file._
 
 import cats.data.NonEmptyList
-import filepeer.core.Env
+import com.typesafe.scalalogging.LazyLogging
+import filepeer.core.{ActorTestSuite, Env}
 import org.scalatest.concurrent._
 import rx.lang.scala.Subject
 
-import scala.concurrent._
+import scala.concurrent.{Await, _}
 import scala.concurrent.duration._
 
 class ClientSuite extends ActorTestSuite with Eventually with LazyLogging {

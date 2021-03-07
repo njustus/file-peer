@@ -1,15 +1,13 @@
 package filepeer.ui
 
-import javafx.fxml.FXML
-import javafx.scene.control.Label
-import javafx.scene.control.TitledPane
-import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.discovery.DiscoveryService
 import filepeer.ui.state.{UiState, UiStateController}
+import javafx.fxml.{FXML, Initializable}
+import javafx.scene.control.{Label, TitledPane}
 import rx.lang.scala.Subscription
 
 class ClientDetailsController() extends LazyLogging with Initializable with UiStateController {

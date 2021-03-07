@@ -6,14 +6,13 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 import akka.NotUsed
-import akka.actor.ActorSystem
 import akka.dispatch.{Dispatchers, MessageDispatcher}
 import akka.http.scaladsl.server.directives.FileInfo
-import akka.stream.{IOResult, Materializer}
 import akka.stream.scaladsl._
+import akka.stream.{IOResult, Materializer}
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
-import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
+import filepeer.core.transfer.FileReceiver.FileSaved
 import filepeer.core.{Env, TransferEnv}
 
 import scala.concurrent.Future

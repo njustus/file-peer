@@ -1,8 +1,8 @@
 package filepeer.ui.components
 
 import filepeer.core.transfer.FileReceiver.FileSaved
-import javafx.scene.control.{Alert, ButtonType}
 import javafx.scene.control.Alert.AlertType
+import javafx.scene.control.{Alert, ButtonType}
 
 object TransferConfirmationDialog {
 

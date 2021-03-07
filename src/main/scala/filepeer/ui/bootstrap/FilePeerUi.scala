@@ -7,13 +7,13 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.stage.Stage
 import pureconfig.ConfigSource
+import pureconfig.generic.auto._
 
 private[bootstrap] class FilePeerUi
   extends Application
     with PureConfigSupport {
 
   override def start(primaryStage:Stage):Unit = {
-    import pureconfig.generic.auto._
     implicit val env: Env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
     val state = new UiState(env)
     val backend = new BackendModule(state.discoverySubscriber, state.fileSavedSubscriber)

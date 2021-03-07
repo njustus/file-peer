@@ -1,7 +1,7 @@
 package filepeer.core.discovery
 
+import filepeer.core.ActorTestSuite
 import filepeer.core.discovery.DiscoveryService.ClientName
-import filepeer.core.{ActorTestSuite}
 import rx.lang.scala.Subject
 
 import scala.concurrent.Promise

@@ -1,9 +1,11 @@
 package filepeer.core.discovery
 
+import java.time.Instant
+
 import filepeer.FilePeerTestSuite
 import filepeer.core._
+
 import scala.collection.mutable
-import java.time.Instant
 
 class ClientNameSpec extends FilePeerTestSuite {
   import DiscoveryService.ClientName

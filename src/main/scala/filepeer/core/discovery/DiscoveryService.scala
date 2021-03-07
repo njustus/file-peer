@@ -1,10 +1,11 @@
 package filepeer.core.discovery
 
+import java.time.Instant
+
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
-import filepeer.core.{Address, DiscoveryEnv, Env, discovery}
+import filepeer.core.{Address, Env, discovery}
 
 import scala.collection.mutable
-import java.time.Instant
 
 private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, env: Env) extends Actor with ActorLogging {
 
