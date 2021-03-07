@@ -21,7 +21,7 @@ private[discovery] class DiscoverySendingActor(env: Env)  extends Actor with Act
 
   IO(Udp) ! Udp.SimpleSender(Seq(Udp.SO.Broadcast(true)))
 
-  context.system.scheduler.scheduleAtFixedRate(5 seconds, 5 seconds, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
+  context.system.scheduler.scheduleAtFixedRate(env.discovery.broadcastInterval, env.discovery.broadcastInterval, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
 
   override def receive: Receive = {
     case Udp.SimpleSenderReady =>
