@@ -1,14 +1,14 @@
 package filepeer
 
 import filepeer.core.Env
+import org.scalatest.flatspec.AsyncFlatSpecLike
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll, Inspectors}
-import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should
 import pureconfig._
 import pureconfig.generic.auto._
 
 trait FilePeerTestSuite
-  extends AsyncFlatSpec
+  extends AsyncFlatSpecLike
     with should.Matchers
     with Inspectors
     with BeforeAndAfterAll

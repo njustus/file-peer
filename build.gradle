@@ -68,6 +68,7 @@ dependencies {
 
   testImplementation "org.scalatest:scalatest_${scalaVersion}:3.2.2"
   testImplementation "org.apache.commons:commons-lang3:3.11"
+  testImplementation "com.typesafe.akka:akka-testkit_${scalaVersion}:${akkaVersion}"
   testRuntimeOnly 'com.vladsch.flexmark:flexmark-all:0.35.10'
 
 }
