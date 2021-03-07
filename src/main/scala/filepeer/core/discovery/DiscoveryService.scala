@@ -15,8 +15,14 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 
   override def receive: Receive = {
     case client: DiscoveryService.ClientName =>
-      log.info("discovered new client: {}", client)
+      if(clients contains client) {
+        log.debug("rediscovered client: {}", client)
+      } else {
+        log.info("discovered new client: {}", client)
+      }
+
       clients += client
+      log.debug(s"available clients: $clients")
       subscriber.newClient(client, clients.toSet)
   }
 }
