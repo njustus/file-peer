@@ -5,6 +5,7 @@ import java.net.{InetAddress, InetSocketAddress}
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Inet, Udp}
 import akka.util.ByteString
+import filepeer.core.{DiscoveryEnv, Env}
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.parser._
@@ -12,10 +13,10 @@ import io.circe.syntax._
 
 import scala.concurrent.duration._
 
-private[discovery] class DiscoverySendingActor(env: filepeer.core.Env)  extends Actor with ActorLogging {
+private[discovery] class DiscoverySendingActor(env: Env)  extends Actor with ActorLogging {
   import context.system
 
-  val broadcastAddress = new InetSocketAddress("255.255.255.255", env.discovery.address.port)
+  private val broadcastAddress = env.discovery.broadcastAddress
   IO(Udp) ! Udp.SimpleSender(Seq(Udp.SO.Broadcast(true)))
 
   context.system.scheduler.scheduleAtFixedRate(5 seconds, 5 seconds, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
@@ -36,7 +37,7 @@ private[discovery] class DiscoverySendingActor(env: filepeer.core.Env)  extends 
 }
 
 private[discovery] object DiscoverySendingActor {
-  def props(env: filepeer.core.Env): Props = Props(classOf[DiscoverySendingActor], env)
+  def props(env: Env): Props = Props(classOf[DiscoverySendingActor], env)
   val actorName: String = "discovery-sender"
   val hostSystem: String = InetAddress.getLocalHost.getHostName
 

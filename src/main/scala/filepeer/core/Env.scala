@@ -1,5 +1,6 @@
 package filepeer.core
 
+import java.net.InetSocketAddress
 import java.nio.file.Path
 
 case class Env(
@@ -12,7 +13,10 @@ case class Env(
 case class DiscoveryEnv(
   address: Address,
   includeLocalhost: Boolean
-)
+) {
+  def listenerAddress: InetSocketAddress = new InetSocketAddress(address.host, address.port)
+  def broadcastAddress: InetSocketAddress = new InetSocketAddress("255.255.255.255", address.port)
+}
 
 case class TransferEnv(
   address: Address,
