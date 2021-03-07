@@ -15,15 +15,6 @@ import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
 import filepeer.core.{Env, TransferEnv}
-import filepeer.core.transfer.TransferServer.{FileTransfer, TransferMsg, TransferPreview}
-import io.circe._
-import io.circe.generic.JsonCodec
-import io.circe.generic.auto._
-import io.circe.parser._
-import io.circe.syntax._
-
-import scala.util.{Failure, Success}
-import filepeer.core.transfer.ProtocolHandlers.ProtocolMessage
 
 import scala.concurrent.Future
 import scala.language.implicitConversions
@@ -32,28 +23,6 @@ class FileReceiver(observer:FileReceiver.FileSavedObserver)(implicit mat: Materi
   extends LazyLogging {
 
   private implicit val exec: MessageDispatcher = mat.system.dispatchers.lookup(Dispatchers.DefaultBlockingDispatcherId)
-
-  def fileWriter: Flow[FileTransfer, IOResult, NotUsed] = {
-    Flow[FileTransfer]
-      .map { case FileTransfer(fileName, content) =>
-      val path = this.targetPath(fileName)
-      val bs = ByteString(content)
-      (FileReceiver.FileSaved(fileName, path), bs)
-    }
-      .mapAsyncUnordered(2) { case (fileSaved, bs) =>
-        observer.accept(fileSaved).flatMap {
-          case true =>
-            logger.info(s"saving ${fileSaved.name} at ${fileSaved.path}")
-            Source.single(bs).runWith(FileIO.toPath(fileSaved.path)).map { x =>
-              observer.fileSaved(fileSaved)
-              x
-            }
-          case false =>
-            logger.info(s"Denied FileTransfer for: ${fileSaved.name}")
-            Future.successful(IOResult(-1))
-        }
-      }
-  }
 
   private def fileWriter(fi: FileInfo): Sink[ByteString, Future[IOResult]] = {
     val path = targetPath(fi.fileName)
@@ -95,5 +64,9 @@ object FileReceiver {
   trait FileSavedObserver {
     def accept(file:FileSaved): Future[Boolean] = Future.successful(true)
     def fileSaved(file:FileSaved): Unit
+  }
+
+  def createTargetDir(conf: TransferEnv): Unit = {
+    better.files.File(conf.targetDir).createDirectories()
   }
 }

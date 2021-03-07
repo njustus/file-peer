@@ -5,9 +5,8 @@ import akka.stream.Materializer
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.discovery.DiscoveryService
 import filepeer.core.discovery.DiscoveryService.DiscoveryObserver
-import filepeer.core.transfer.FileReceiver.{FileSaved, FileSavedObserver}
-import filepeer.core.transfer.{Client, FileReceiver, HttpClient, HttpReceiver, TransferServer}
-import pureconfig.ConfigSource
+import filepeer.core.transfer.FileReceiver.FileSavedObserver
+import filepeer.core.transfer.{FileReceiver, HttpClient, HttpReceiver}
 
 class BackendModule(discoverySubscriber: DiscoveryObserver,
                     receiverSubscriber: FileSavedObserver)(implicit env: Env,
@@ -15,7 +14,7 @@ class BackendModule(discoverySubscriber: DiscoveryObserver,
   extends LazyLogging {
   logger.info(s"""enabled features: [${env.features.mkString(",")}]""")
 
-  TransferServer.createTargetDir(env.transfer)
+  FileReceiver.createTargetDir(env.transfer)
 
   implicit val mat = Materializer.matFromSystem
   scala.sys.addShutdownHook {
