@@ -5,6 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.io.{IO, Udp}
 import akka.util.ByteString
+import filepeer.core.DiscoveryEnv
 import filepeer.core.discovery.DiscoveryListeningActor.ClientAddress
 import io.circe.generic.JsonCodec
 import io.circe._
@@ -12,12 +13,10 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 
-private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery:filepeer.core.DiscoveryEnv) extends Actor with ActorLogging {
+private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery: DiscoveryEnv) extends Actor with ActorLogging {
   import context.system
 
-  val listeningSocketAddress = new InetSocketAddress("0.0.0.0", discovery.address.port)
-
-  IO(Udp) ! Udp.Bind(self, listeningSocketAddress)
+  IO(Udp) ! Udp.Bind(self, discovery.listenerAddress)
 
   override def receive: Receive = {
     case Udp.Bound(localAddress) =>
