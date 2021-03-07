@@ -16,6 +16,8 @@ import io.circe.syntax._
 private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery: DiscoveryEnv) extends Actor with ActorLogging {
   import context.system
 
+  log.info(s"listening on ${discovery.listenerAddress}")
+
   IO(Udp) ! Udp.Bind(self, discovery.listenerAddress)
 
   override def receive: Receive = {

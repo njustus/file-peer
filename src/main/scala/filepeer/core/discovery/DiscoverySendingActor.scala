@@ -17,6 +17,8 @@ private[discovery] class DiscoverySendingActor(env: Env)  extends Actor with Act
   import context.system
 
   private val broadcastAddress = env.discovery.broadcastAddress
+  log.info(s"broadcasting on ${broadcastAddress}")
+
   IO(Udp) ! Udp.SimpleSender(Seq(Udp.SO.Broadcast(true)))
 
   context.system.scheduler.scheduleAtFixedRate(5 seconds, 5 seconds, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
