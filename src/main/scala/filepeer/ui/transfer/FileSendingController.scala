@@ -15,8 +15,6 @@ import javafx.scene.control.Label
 import javafx.scene.input.{DragEvent, TransferMode}
 import javafx.scene.layout.{HBox, StackPane, VBox}
 import javafx.stage.Window
-import javafx.util.Duration
-import org.controlsfx.control.Notifications
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 

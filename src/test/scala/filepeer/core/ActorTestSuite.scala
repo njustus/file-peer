@@ -5,7 +5,6 @@ import akka.stream.Materializer
 import akka.testkit.TestKit
 import filepeer.FilePeerTestSuite
 
-import scala.concurrent.Await
 import scala.concurrent.duration._
 
 abstract class ActorTestSuite

@@ -1,17 +1,11 @@
 package filepeer.core.transfer
 
-import java.net.InetAddress
 import java.nio.file.{Files, Path}
 
-import akka.Done
-import akka.actor.ActorSystem
-import akka.stream.{IOResult, Materializer}
-import akka.stream.scaladsl.{FileIO, Flow, Keep, Sink, Source, Tcp}
+import akka.stream.IOResult
+import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-import better.files.File
-import cats.data.NonEmptyList
-import com.typesafe.scalalogging.LazyLogging
-import filepeer.core.{Address, Env}
+import filepeer.core.Address
 
 import scala.concurrent.Future
 

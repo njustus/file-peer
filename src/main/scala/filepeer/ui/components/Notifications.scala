@@ -2,7 +2,6 @@ package filepeer.ui.components
 
 import javafx.stage.Window
 import javafx.util.Duration
-
 import org.controlsfx.control.{Notifications => Notificator}
 
 trait Notifications {

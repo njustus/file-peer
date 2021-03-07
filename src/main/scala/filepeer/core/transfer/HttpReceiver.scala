@@ -1,12 +1,10 @@
 package filepeer.core.transfer
 
-import java.nio.file.Path
-
 import akka.NotUsed
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.directives.FileInfo
+import akka.stream.scaladsl.Source
 import akka.stream.{IOResult, Materializer}
-import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.{Address, Env}

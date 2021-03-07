@@ -1,6 +1,7 @@
 package filepeer.ui
 
 import javafx.beans.value.ChangeListener
+
 import scala.language.implicitConversions
 
 trait CallbackImplicits {

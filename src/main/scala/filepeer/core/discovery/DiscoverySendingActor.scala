@@ -1,17 +1,12 @@
 package filepeer.core.discovery
 
-import java.net.{InetAddress, InetSocketAddress}
+import java.net.InetAddress
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.io.{IO, Inet, Udp}
+import akka.io.{IO, Udp}
 import akka.util.ByteString
-import filepeer.core.{DiscoveryEnv, Env}
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.parser._
+import filepeer.core.Env
 import io.circe.syntax._
-
-import scala.concurrent.duration._
 
 private[discovery] class DiscoverySendingActor(env: Env)  extends Actor with ActorLogging {
   import context.system

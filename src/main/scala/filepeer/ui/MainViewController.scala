@@ -1,26 +1,24 @@
 package filepeer.ui
 
-import javafx.fxml.FXML
-import javafx.scene.control.ListView
-import filepeer.core.discovery.DiscoveryService
-import javafx.collections.FXCollections
-import com.typesafe.scalalogging.LazyLogging
-import javafx.fxml.Initializable
 import java.net.URL
 import java.util.ResourceBundle
 
+import com.typesafe.scalalogging.LazyLogging
+import filepeer.core.discovery.DiscoveryService
 import filepeer.ui.components.ComponentFactory
-import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.state.actions.UpdateCurrentClient
+import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.transfer.FileSendingController
-import javafx.scene.control.SelectionMode
+import javafx.collections.FXCollections
+import javafx.fxml.{FXML, Initializable}
+import javafx.scene.control.{ListView, SelectionMode}
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 
 class MainViewController(componentFactory: ComponentFactory) extends LazyLogging with Initializable with CallbackImplicits with UiStateController {
 
-  import scala.language.implicitConversions
   import scala.jdk.CollectionConverters._
+  import scala.language.implicitConversions
 
   @FXML var serverListView: ListView[DiscoveryService.ClientName] = null
 

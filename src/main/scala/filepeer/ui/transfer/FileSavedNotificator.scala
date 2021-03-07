@@ -1,20 +1,16 @@
 package filepeer.ui.transfer
 
 import java.awt.Desktop
-import java.nio.file.Files
 
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.Env
 import filepeer.core.transfer.FileReceiver
+import filepeer.ui.components.Notifications
 import javafx.application.Platform
 import javafx.event.ActionEvent
-import javafx.stage.Window
-import javafx.util.Duration
 import org.controlsfx.control.action.Action
 
 import scala.concurrent.{ExecutionContext, Future, blocking}
-
-import filepeer.ui.components.Notifications
 
 private[transfer] trait FileSavedNotificator extends Notifications {
   self: LazyLogging =>
