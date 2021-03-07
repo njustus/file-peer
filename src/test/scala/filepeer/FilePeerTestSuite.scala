@@ -13,5 +13,10 @@ trait FilePeerTestSuite
     with Inspectors
     with BeforeAndAfterAll
     with BeforeAndAfter {
-  implicit val env: Env = ConfigSource.default.at("file-peer").loadOrThrow[Env]
+  implicit val env: Env = {
+    ConfigSource.resources("test-application.conf")
+      .withFallback(ConfigSource.default)
+      .at("file-peer")
+      .loadOrThrow[Env]
+  }
 }
