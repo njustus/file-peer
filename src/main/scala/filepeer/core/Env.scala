@@ -5,9 +5,12 @@ import java.nio.file.Path
 
 case class Env(
   discovery: DiscoveryEnv,
-  transfer: TransferEnv
+  transfer: TransferEnv,
+  features: Set[Features.Feature]
 ) {
   def downloadDir: Path = transfer.targetDir
+
+  def discoveryFeatureIsEnabled:Boolean = features.contains(Features.Discovery)
 }
 
 case class DiscoveryEnv(
@@ -31,3 +34,7 @@ case class Address(
   def format: String = s"$host:$port"
 }
 
+object Features extends Enumeration {
+  type Feature = Value
+  val Discovery = Value
+}
