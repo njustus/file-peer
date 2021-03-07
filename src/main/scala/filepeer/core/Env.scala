@@ -3,6 +3,8 @@ package filepeer.core
 import java.net.InetSocketAddress
 import java.nio.file.Path
 
+import scala.concurrent.duration.FiniteDuration
+
 case class Env(
   discovery: DiscoveryEnv,
   transfer: TransferEnv,
@@ -16,7 +18,8 @@ case class Env(
 case class DiscoveryEnv(
   address: Address,
   broadcast: Address,
-  includeLocalhost: Boolean
+  includeLocalhost: Boolean,
+  broadcastInterval: FiniteDuration
 ) {
   def listenerAddress: InetSocketAddress = address.inetSocketAddress
   def broadcastAddress: InetSocketAddress = broadcast.inetSocketAddress
