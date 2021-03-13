@@ -13,6 +13,10 @@ import filepeer.ui.state.UiState
 class DependencyResolverSuite extends ActorTestSuite with LazyLogging {
   private val discoveryObserver = new DiscoveryObserver {
     override def newClient(client: DiscoveryService.ClientName, allClients: Set[DiscoveryService.ClientName]): Unit = logger.warn(s"unhandled new client message received: $client")
+
+    override def goneClients(client:Set[DiscoveryService.ClientName], allClients:Set[DiscoveryService.ClientName]): Unit = {
+      //dummy impl
+    }
   }
 
   private val fileObserver = new FileSavedObserver {
