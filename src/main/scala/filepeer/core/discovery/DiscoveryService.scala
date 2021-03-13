@@ -18,11 +18,13 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
     case client: DiscoveryService.ClientName =>
       if(clients contains client) {
         log.debug("rediscovered client: {}", client)
+        clients -= client
+        clients += client
       } else {
         log.info("discovered new client: {}", client)
+        clients += client
       }
 
-      clients += client
       log.debug(s"available clients: $clients")
       subscriber.newClient(client, clients.toSet)
   }
