@@ -20,6 +20,11 @@ class UiState(val env:Env) {
       val clients = allClients.toList.sortBy(_.hostName)
       dispatchAction(UpdateAvailableClients(clients))
     }
+
+    override def goneClients(client:Set[DiscoveryService.ClientName], allClients:Set[DiscoveryService.ClientName]): Unit = {
+      //TODO impl removing clients from UI
+      println(s"clients removed: $client")
+    }
   }
 
   val fileSavedSubscriber: FileReceiver.FileSavedObserver = new FileReceiver.FileSavedObserver {

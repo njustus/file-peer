@@ -19,4 +19,6 @@ abstract class ActorTestSuite
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
+
+  def selectActor(path:String) = system.actorSelection(path)
 }

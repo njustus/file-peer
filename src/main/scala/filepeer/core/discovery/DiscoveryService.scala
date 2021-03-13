@@ -30,7 +30,7 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
       log.debug(s"found ${obsoleteClients.size} clients to remove")
       obsoleteClients.foreach(c => clients -= c)
       log.info(s"remaining ${clients.size} clients")
-
+      subscriber.goneClients(obsoleteClients.toSet, clients.toSet)
     case client: DiscoveryService.ClientName =>
       if(clients contains client) {
         log.debug("rediscovered client: {}", client)
@@ -64,6 +64,8 @@ object DiscoveryService {
 
   trait DiscoveryObserver {
     def newClient(client:ClientName, allClients:Set[ClientName]): Unit
+
+    def goneClients(client:Set[ClientName], allClients:Set[ClientName]): Unit
   }
 
   private[core] def create(subscriber:DiscoveryService.DiscoveryObserver)(implicit actorSystem: ActorSystem, env: Env): ActorRef = {
