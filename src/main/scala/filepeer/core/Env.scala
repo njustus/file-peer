@@ -19,7 +19,8 @@ case class DiscoveryEnv(
   address: Address,
   broadcast: Address,
   includeLocalhost: Boolean,
-  broadcastInterval: FiniteDuration
+  broadcastInterval: FiniteDuration,
+  cleanupInterval: FiniteDuration
 ) {
   def listenerAddress: InetSocketAddress = address.inetSocketAddress
   def broadcastAddress: InetSocketAddress = broadcast.inetSocketAddress

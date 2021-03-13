@@ -10,13 +10,17 @@ import io.circe.syntax._
 
 private[discovery] class DiscoverySendingActor(env: Env)  extends Actor with ActorLogging {
   import context.system
+  import context.dispatcher
 
   private val broadcastAddress = env.discovery.broadcastAddress
   log.info(s"broadcasting on ${broadcastAddress}")
 
   IO(Udp) ! Udp.SimpleSender(Seq(Udp.SO.Broadcast(true)))
 
-  context.system.scheduler.scheduleAtFixedRate(env.discovery.broadcastInterval, env.discovery.broadcastInterval, self, DiscoverySendingActor.Broadcast)(context.system.dispatcher)
+  context.system.scheduler.scheduleAtFixedRate(env.discovery.broadcastInterval,
+                                                env.discovery.broadcastInterval,
+                                                self,
+                                                DiscoverySendingActor.Broadcast)
 
   override def receive: Receive = {
     case Udp.SimpleSenderReady =>
