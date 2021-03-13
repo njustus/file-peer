@@ -1,6 +1,6 @@
 package filepeer.core.discovery
 
-import java.time.Instant
+import java.time.{Duration, Instant}
 
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import filepeer.core.{Address, Env, discovery}
@@ -8,13 +8,29 @@ import filepeer.core.{Address, Env, discovery}
 import scala.collection.mutable
 
 private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, env: Env) extends Actor with ActorLogging {
+  import context.system
+  import context.dispatcher
 
-  private val listeningActor = context.system.actorOf(DiscoveryListeningActor.props(self, env.discovery), DiscoveryListeningActor.actorName)
-  private val sendingActor = context.system.actorOf(DiscoverySendingActor.props(env), DiscoverySendingActor.actorName)
+  private val listeningActor = system.actorOf(DiscoveryListeningActor.props(self, env.discovery), DiscoveryListeningActor.actorName)
+  private val sendingActor = system.actorOf(DiscoverySendingActor.props(env), DiscoverySendingActor.actorName)
 
   private val clients = mutable.LinkedHashSet.empty[discovery.DiscoveryService.ClientName]
 
+  system.scheduler.scheduleAtFixedRate(env.discovery.cleanupInterval,
+                                        env.discovery.cleanupInterval,
+                                        self,
+                                        DiscoveryService.Cleanup)
+
   override def receive: Receive = {
+    case DiscoveryService.Cleanup =>
+      log.debug("cleaning up non-responding clients...")
+      val now = Instant.now()
+      val obsoleteClients = clients.filter(c => Duration.between(c.discoveredAt, now).compareTo(Duration.ofSeconds(11)) > 0)
+
+      log.debug(s"found ${obsoleteClients.size} clients to remove")
+      obsoleteClients.foreach(c => clients -= c)
+      log.info(s"remaining ${clients.size} clients")
+
     case client: DiscoveryService.ClientName =>
       if(clients contains client) {
         log.debug("rediscovered client: {}", client)
@@ -43,6 +59,8 @@ object DiscoveryService {
 
     override def hashCode(): Int = this.ip.hashCode
   }
+
+  case object Cleanup
 
   trait DiscoveryObserver {
     def newClient(client:ClientName, allClients:Set[ClientName]): Unit
