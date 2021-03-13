@@ -38,6 +38,8 @@ object DiscoveryService {
       case ClientName(_, ip, port, _) => this.ip == ip
       case _ => false
     }
+
+    override def hashCode(): Int = this.ip.hashCode
   }
 
   trait DiscoveryObserver {
