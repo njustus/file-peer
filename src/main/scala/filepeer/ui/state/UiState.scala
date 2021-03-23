@@ -15,15 +15,18 @@ class UiState(val env:Env) {
   private val state = ReduxState[FPState, StateAction](FPState.zero)(UiState.stateReducer)
 
   val discoverySubscriber: DiscoveryService.DiscoveryObserver = new DiscoveryService.DiscoveryObserver {
-    override def newClient(client: DiscoveryService.ClientName,
-      allClients: Set[DiscoveryService.ClientName]): Unit = {
+    private def updateClients(allClients:Set[DiscoveryService.ClientName]): Unit = {
       val clients = allClients.toList.sortBy(_.hostName)
       dispatchAction(UpdateAvailableClients(clients))
     }
 
+
+    override def newClient(client: DiscoveryService.ClientName, allClients: Set[DiscoveryService.ClientName]): Unit = {
+      updateClients(allClients)
+    }
+
     override def goneClients(client:Set[DiscoveryService.ClientName], allClients:Set[DiscoveryService.ClientName]): Unit = {
-      //TODO impl removing clients from UI
-      println(s"clients removed: $client")
+      updateClients(allClients)
     }
   }
 
