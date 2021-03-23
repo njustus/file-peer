@@ -2,13 +2,13 @@ package filepeer.ui
 
 import java.net.URL
 import java.util.ResourceBundle
-
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.discovery.DiscoveryService
 import filepeer.ui.components.ComponentFactory
 import filepeer.ui.state.actions.UpdateCurrentClient
 import filepeer.ui.state.{UiState, UiStateController}
 import filepeer.ui.transfer.FileSendingController
+import javafx.application.Platform
 import javafx.collections.FXCollections
 import javafx.fxml.{FXML, Initializable}
 import javafx.scene.control.{ListView, SelectionMode}
@@ -40,7 +40,9 @@ class MainViewController(componentFactory: ComponentFactory) extends LazyLogging
 
     val serverSub = state.availableServers$
       .map(xs => FXCollections.observableList(xs.asJava))
-      .subscribe(serverListView.setItems _)
+      .subscribe { servers =>
+        Platform.runLater(() => serverListView.setItems(servers))
+      }
 
     val selectedListener = state.dispatchAction.compose(UpdateCurrentClient.apply)
     serverListView.getSelectionModel.selectedItemProperty.addListener(selectedListener)
