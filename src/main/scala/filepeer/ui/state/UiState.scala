@@ -27,6 +27,7 @@ class UiState(val env:Env) {
 
     override def goneClients(client:Set[DiscoveryService.ClientName], allClients:Set[DiscoveryService.ClientName]): Unit = {
       updateClients(allClients)
+      //TODO update selected client as well if selected client disappears
     }
   }
 

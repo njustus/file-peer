@@ -37,7 +37,7 @@ private[discovery] class DiscoveryListeningActor(interestee: ActorRef, discovery
         case _ => true
       }
       .foreach { case ClientAddress(hostName, port) =>
-      interestee ! DiscoveryService.ClientName(hostName, addr.getHostName, port)
+      interestee ! DiscoveryService.ClientName(hostName, addr.getAddress.getHostAddress, port)
     }
   }
 }
