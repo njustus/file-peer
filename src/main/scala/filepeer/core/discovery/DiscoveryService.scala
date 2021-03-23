@@ -47,20 +47,20 @@ private class DiscoveryManager(subscriber:DiscoveryService.DiscoveryObserver, en
 }
 
 object DiscoveryService {
-  case class ClientName(hostName: String, ip: String, port: Int, discoveredAt:Instant = Instant.now) {
+  case class ClientName private[discovery](hostName: String, ip: String, port: Int, discoveredAt:Instant = Instant.now) {
     def isLocalhost: Boolean = hostName == DiscoverySendingActor.hostSystem
 
     def address: Address = Address(ip, port)
 
     override def equals(obj: Any): Boolean = obj match {
-      case ClientName(_, ip, port, _) => this.ip == ip
+      case other:ClientName => this.address == other.address
       case _ => false
     }
 
-    override def hashCode(): Int = this.ip.hashCode
+    override def hashCode(): Int = this.address.hashCode
   }
 
-  case object Cleanup
+  private[discovery] case object Cleanup
 
   trait DiscoveryObserver {
     def newClient(client:ClientName, allClients:Set[ClientName]): Unit
