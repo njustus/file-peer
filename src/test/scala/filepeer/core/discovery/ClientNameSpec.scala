@@ -20,16 +20,18 @@ class ClientNameSpec extends FilePeerTestSuite {
     (cl == cl) shouldBe (true)
   }
 
-  it should "implement equals based on ip returning 'true'" in {
+  it should "implement equals based on Address returning 'true'" in {
     val cl2 = cl.copy(hostName="nico", discoveredAt=Instant.now)
     (cl == cl2) shouldBe (true)
-
-    val cl3 = cl.copy(hostName="nico", port=7001)
-    (cl == cl3) shouldBe (true)
   }
 
-  it should "implement equals based on ip returning 'false'" in {
+  it should "implement equals based on Address returning 'false' if ip differs" in {
     val cl2 = cl.copy(ip="127.1.0.0")
+    (cl == cl2) shouldBe (false)
+  }
+
+  it should "implement equals based on Address returning 'false' if port differs" in {
+    val cl2 = cl.copy(port=5)
     (cl == cl2) shouldBe (false)
   }
 
