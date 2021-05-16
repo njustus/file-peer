@@ -80,7 +80,8 @@ class FileSendingController(override val env:Env,
               logger.info(s"$files send to $address")
               Platform.runLater { () =>
                 dragDropPane.toFront()
-                notify(s"""Uploaded $files""", "File sent.")
+                val pathStr = paths.toList.map(_.getFileName).mkString(", ")
+                notify(s"""Uploaded $pathStr""", "File sent.")
               }
             case x => logger.error("ouh no! what happened?", x)
           }
