@@ -25,6 +25,8 @@
 
 .drag-drop-pane {
   -fx-background-color: lightgrey;
+  -fx-alignment: bottom-center;
+  -fx-padding: 10px;
 }
 
 .drag-drop-pane--active {

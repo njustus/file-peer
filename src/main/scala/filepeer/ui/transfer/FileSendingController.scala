@@ -2,7 +2,6 @@ package filepeer.ui.transfer
 
 import java.net.URL
 import java.util.ResourceBundle
-
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import filepeer.core.Env
@@ -10,14 +9,16 @@ import filepeer.core.discovery.DiscoveryService.ClientName
 import filepeer.core.transfer.{Client, HttpClient}
 import filepeer.ui.state.{UiState, UiStateController}
 import javafx.application.Platform
+import javafx.event.ActionEvent
 import javafx.fxml.{FXML, Initializable}
 import javafx.scene.control.Label
 import javafx.scene.input.{DragEvent, TransferMode}
 import javafx.scene.layout.{HBox, StackPane, VBox}
-import javafx.stage.Window
+import javafx.stage.{FileChooser, Window}
 import rx.lang.scala.Subscription
 import rx.lang.scala.subscriptions.CompositeSubscription
 
+import java.io.File
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
@@ -34,11 +35,13 @@ class FileSendingController(override val env:Env,
 
   @FXML var stackPane: StackPane = null
 
-  @FXML var dragDropPane: HBox = null
+  @FXML var dragDropPane: VBox = null
 
   @FXML var progressPane: VBox = null
 
   @FXML var progressLlbl: Label = null
+
+  private val fileChooser  = new FileChooser()
 
   private var selectedClient:Option[ClientName] = None
 
@@ -56,12 +59,41 @@ class FileSendingController(override val env:Env,
   def onFileDropped(ev:DragEvent): Unit = {
     val board = ev.getDragboard
     val droppedFiles = board.getFiles.asScala.toList
-    logger.info(s"dropped files: $droppedFiles")
+    uploadFiles(droppedFiles)
+  }
+
+  @FXML
+  def onOpenFileClicked(ev: ActionEvent): Unit = {
+    val selectedFile = fileChooser.showOpenDialog(stackPane.getScene.getWindow)
+    if(selectedFile != null) {
+      logger.debug(s"$selectedFile selected.")
+      uploadFiles(List(selectedFile))
+    } else {
+      logger.debug("no file selected.")
+    }
+  }
+
+  override def initialize(location: URL, resources: ResourceBundle): Unit = {
+    dragDropPane.toFront()
+  }
+
+  override def connectUiState(state: UiState): Subscription = {
+    val clientSub = state.currentClient$.subscribe(cl => selectedClient = Some(cl))
+    val fsSub = state.filSaved$.subscribe(this.notifyFileSaved _)
+
+    CompositeSubscription(clientSub, fsSub)
+  }
+
+  override protected def currentWindow: Window = stackPane.getScene.getWindow
+  override protected implicit def blockingExecutor: ExecutionContext = ExecutionContext.global
+
+  private def uploadFiles(filesToUpload: List[File]): Unit = {
+    logger.info(s"dropped files: $filesToUpload")
 
     dragDropPane.getStyleClass.removeAll("drag-drop-pane--active")
 
     val opt = for {
-      files <- NonEmptyList.fromList(droppedFiles)
+      files <- NonEmptyList.fromList(filesToUpload)
       client <- selectedClient
     } yield {
       progressPane.toFront()
@@ -89,18 +121,4 @@ class FileSendingController(override val env:Env,
 
     opt.getOrElse(logger.warn("Ignoring dropped empty file list!"))
   }
-
-  override def initialize(location: URL, resources: ResourceBundle): Unit = {
-    dragDropPane.toFront()
-  }
-
-  override def connectUiState(state: UiState): Subscription = {
-    val clientSub = state.currentClient$.subscribe(cl => selectedClient = Some(cl))
-    val fsSub = state.filSaved$.subscribe(this.notifyFileSaved _)
-
-    CompositeSubscription(clientSub, fsSub)
-  }
-
-  override protected def currentWindow: Window = stackPane.getScene.getWindow
-  override protected implicit def blockingExecutor: ExecutionContext = ExecutionContext.global
 }

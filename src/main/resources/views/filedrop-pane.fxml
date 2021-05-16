@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.HBox?>
@@ -8,11 +9,12 @@
 
 <StackPane fx:id="stackPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.transfer.FileSendingController">
    <children>
-      <HBox fx:id="dragDropPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="drag-drop-pane">
+      <VBox fx:id="dragDropPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="drag-drop-pane">
          <children>
+            <Button mnemonicParsing="false" onAction="#onOpenFileClicked" text="Select File" />
             <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-alignment: center;" text="Drag &amp; Drop files here" HBox.hgrow="ALWAYS" />
          </children>
-      </HBox>
+      </VBox>
       <VBox id="drag-drop-progressbar" fx:id="progressPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" StackPane.alignment="CENTER">
          <children>
             <ProgressIndicator maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
