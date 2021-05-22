@@ -6,13 +6,19 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.glyphfont.Glyph ?>
 
 <StackPane fx:id="stackPane" onDragDropped="#onFileDropped" onDragOver="#onDragOver" prefHeight="150.0" prefWidth="200.0" styleClass="drag-drop-pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="filepeer.ui.transfer.FileSendingController">
    <children>
       <VBox fx:id="dragDropPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" styleClass="drag-drop-pane">
-         <children>
-            <Button mnemonicParsing="false" onAction="#onOpenFileClicked" text="Select File" />
-            <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-alignment: center;" text="Drag &amp; Drop files here" HBox.hgrow="ALWAYS" />
+        <children>
+          <Glyph fontFamily="FontAwesome" icon="cloud_upload" fontSize="32" />
+           <Button mnemonicParsing="false" onAction="#onOpenFileClicked" text="Select File">
+             <graphic>
+               <Glyph fontFamily="FontAwesome" icon="folder_open_alt" />
+             </graphic>
+           </Button>
+           <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-alignment: center;" text="Drag &amp; Drop files here" HBox.hgrow="ALWAYS" />
          </children>
       </VBox>
       <VBox id="drag-drop-progressbar" fx:id="progressPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" StackPane.alignment="CENTER">
