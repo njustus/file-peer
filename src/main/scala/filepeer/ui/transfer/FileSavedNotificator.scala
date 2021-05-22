@@ -19,6 +19,7 @@ private[transfer] trait FileSavedNotificator extends Notifications {
     logger.info(s"File received: $fileSaved")
     val openDownloadDirectoryAction = new Action("Open Directory", (_: ActionEvent) => this.openDownloadDirectory())
     val openFileAction = new Action("Open File", (_: ActionEvent) => this.openFile(fileSaved))
+    val notifyReceived = notifyA(openDownloadDirectoryAction, openFileAction) _
 
     val kbStr = fileSaved.size.map { sz =>
         val kb = sz.toDouble / 1024
@@ -28,7 +29,7 @@ private[transfer] trait FileSavedNotificator extends Notifications {
     val sizeString = s"($kbStr KB)"
 
     Platform.runLater { () =>
-      notify(s"Received: ${fileSaved.name} $sizeString", "File received.")
+      notifyReceived(s"Received: ${fileSaved.name} $sizeString", "File received.")
     }
   }
 
